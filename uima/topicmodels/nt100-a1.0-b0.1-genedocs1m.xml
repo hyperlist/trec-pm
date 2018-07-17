@@ -23,7 +23,7 @@
 		</parameters>
 		<corpus>
 			<subset>
-				<table>tm_random500k</table>
+				<table>genedocs_random1m</table>
 				<reset>true</reset>
 				<annotationpgschema>_data_xmi</annotationpgschema>
 			</subset>

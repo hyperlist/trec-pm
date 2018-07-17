@@ -3,7 +3,7 @@
 	<train>
 		<parameters>
 			<parameter>
-				<numTopics>100</numTopics>
+				<numTopics>30</numTopics>
 			</parameter>
 			<parameter>
 				<alphaSum>1.0</alphaSum>
@@ -23,7 +23,7 @@
 		</parameters>
 		<corpus>
 			<subset>
-				<table>tm_random500k</table>
+				<table>goldstandard3</table>
 				<reset>true</reset>
 				<annotationpgschema>_data_xmi</annotationpgschema>
 			</subset>

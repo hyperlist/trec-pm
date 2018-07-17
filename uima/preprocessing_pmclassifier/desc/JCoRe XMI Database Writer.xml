@@ -114,39 +114,23 @@
                 </value>
             </nameValuePair>
             <nameValuePair>
-                <name>StoreEntireXmiData</name>
+                <name>AnnotationStoragePostgresSchema</name>
                 <value>
-                    <boolean>false</boolean>
+                    <string>_data_xmi</string>
                 </value>
             </nameValuePair>
             <nameValuePair>
-                <name>StoreBaseDocument</name>
+                <name>AnnotationsToStore</name>
                 <value>
-                    <boolean>true</boolean>
-                </value>
-            </nameValuePair>
-            <nameValuePair>
-                <name>StoreRecursively</name>
-                <value>
-                    <boolean>true</boolean>
+                    <array>
+                        <string>de.julielab.jcore.types.AutoDescriptor</string>
+                    </array>
                 </value>
             </nameValuePair>
             <nameValuePair>
                 <name>CostosysConfigFile</name>
                 <value>
-                    <string>config/costosys.xml</string>
-                </value>
-            </nameValuePair>
-            <nameValuePair>
-                <name>UpdateMode</name>
-                <value>
-                    <boolean>true</boolean>
-                </value>
-            </nameValuePair>
-            <nameValuePair>
-                <name>PerformGZIP</name>
-                <value>
-                    <boolean>true</boolean>
+                    <string>../costosys.xml</string>
                 </value>
             </nameValuePair>
             <nameValuePair>
@@ -156,34 +140,33 @@
                 </value>
             </nameValuePair>
             <nameValuePair>
-                <name>AnnotationsToStore</name>
+                <name>PerformGZIP</name>
                 <value>
-                    <array>
-                        <string>de.julielab.jcore.types.Token</string>
-                        <string>de.julielab.jcore.types.Sentence</string>
-                        <string>de.julielab.jcore.types.Abbreviation</string>
-                        <string>de.julielab.jcore.types.PennBioIEPOSTag</string>
-                        <string>de.julielab.jcore.types.Gene</string>
-                        <string>de.julielab.jcore.types.GeneResourceEntry</string>
-                        <string>de.julielab.jcore.types.AutoDescriptor</string>
-                    </array>
+                    <boolean>true</boolean>
                 </value>
             </nameValuePair>
             <nameValuePair>
-                <name>AnnotationStoragePostgresSchema</name>
+                <name>StoreBaseDocument</name>
                 <value>
-                    <string>_data_xmi</string>
+                    <boolean>false</boolean>
                 </value>
             </nameValuePair>
             <nameValuePair>
-                <name>BaseDocumentAnnotationTypes</name>
+                <name>StoreEntireXmiData</name>
                 <value>
-                    <array>
-                        <string>de.julielab.jcore.types.AbstractText</string>
-                        <string>de.julielab.jcore.types.Title</string>
-                        <string>de.julielab.jcore.types.pubmed.Header</string>
-                        <string>de.julielab.jcore.types.pubmed.ManualDescriptor</string>
-                    </array>
+                    <boolean>false</boolean>
+                </value>
+            </nameValuePair>
+            <nameValuePair>
+                <name>StoreRecursively</name>
+                <value>
+                    <boolean>true</boolean>
+                </value>
+            </nameValuePair>
+            <nameValuePair>
+                <name>UpdateMode</name>
+                <value>
+                    <boolean>true</boolean>
                 </value>
             </nameValuePair>
         </configurationParameterSettings>

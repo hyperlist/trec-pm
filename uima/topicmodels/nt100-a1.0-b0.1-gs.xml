@@ -23,7 +23,7 @@
 		</parameters>
 		<corpus>
 			<subset>
-				<table>tm_random500k</table>
+				<table>goldstandard2</table>
 				<reset>true</reset>
 				<annotationpgschema>_data_xmi</annotationpgschema>
 			</subset>
