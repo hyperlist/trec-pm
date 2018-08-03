@@ -1,12 +1,7 @@
-package at.medunigraz.imi.bst.pmclassifier.evaluation;
+package at.medunigraz.imi.bst.pmclassifier.apps;
 
 import at.medunigraz.imi.bst.pmclassifier.*;
 import cc.mallet.types.InstanceList;
-import com.wcohen.ss.TFIDF;
-import com.wcohen.ss.api.StringWrapper;
-import com.wcohen.ss.api.Token;
-import com.wcohen.ss.tokens.BasicToken;
-import de.julielab.java.utilities.CLIInteractionUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,12 +16,14 @@ public class CrossVal {
     private static final Logger LOG = LogManager.getLogger();
     private final static int randomSeed = 1;
 
-    public static void main(String args[]) throws DataReadingException, IOException {
+    public static void main(String args[]) throws DataReadingException, IOException, ClassNotFoundException {
         MalletClassifier classifier = new MalletClassifier();
         int numFolds = 10;
 
         Map<String, Document> documents = DataReader.readDocuments(new File("resources/gs2017DocsJson.zip"));
-        InstancePreparator ip = new InstancePreparator();
+        InstancePreparator ip = InstancePreparator.getInstance();
+        classifier.setInstancePreparator(ip);
+
         ip.trainTfIdf(documents.values());
 
         DataReader.addPMLabels(new File("resources/20180622processedGoldStandardTopics.tsv.gz"), documents);
@@ -48,6 +45,9 @@ public class CrossVal {
             InstanceList ilist = ip.createClassificationInstances(train);
             LOG.info("Training on " + train.size() + " documents");
             classifier.train(ilist);
+            classifier.writeClassifier(new File("tmp.gz"));
+            ip.setTfidf(null);
+            classifier.readClassifier("tmp.gz");
 
             LOG.info("Testing on " + test.size() + " documents");
             int corr = 0;
@@ -65,7 +65,7 @@ public class CrossVal {
             corrAllover += corr;
         }
 
-        LOG.info("Allover evaluation:");
+        LOG.info("Allover eval:");
         LOG.info("Total: " + documents.size());
         LOG.info("Correct: " + corrAllover);
         LOG.info("That is " + (corrAllover / (double) documents.size()) * 100 + "%");
