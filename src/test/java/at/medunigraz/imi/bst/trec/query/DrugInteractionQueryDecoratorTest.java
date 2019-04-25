@@ -4,11 +4,18 @@ import at.medunigraz.imi.bst.config.TrecConfig;
 import at.medunigraz.imi.bst.trec.model.Topic;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.Map;
 
+/**
+ * This test is ignored because it queries DGIdb which has varying results over time. At the time of writing
+ * this comment, most of the tested drugs won't be returned because their score is now too low than the set
+ * threshold.
+ */
+@Ignore
 public class DrugInteractionQueryDecoratorTest extends QueryDecoratorTest {
     private static final String GENE = "BRAF";
 

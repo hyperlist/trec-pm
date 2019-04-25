@@ -45,7 +45,6 @@ public class TemplateQueryDecorator extends MapQueryDecorator {
 		loadTemplate(topic);
 		map(topic.getAttributes());
 		setJSONQuery(cleanup(getJSONQuery()));
-		checkDanglingTemplates(getJSONQuery());
 		try {
 			return decoratedQuery.query(topic);
 		} catch (JSONException e) {
