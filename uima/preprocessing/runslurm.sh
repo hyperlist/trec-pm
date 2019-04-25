@@ -1,6 +1,10 @@
 #!/bin/bash
-#SBATCH --mem 7g
-#SBATCH --cpus-per-task 1 
-#SBATCH -J trecprocessing
+#SBATCH --mem 40g
+#SBATCH --cpus-per-task 20 
+#SBATCH -J trecpreproc 
 
-java -jar -Xmx6g -Dlogback.configurationFile=/home/faessler/Coding/git/trec2018/uima/preprocessing/config/logback.xml ~/bin/jcore-pipeline-runner-*.jar pipelinerunner.xml
+# This library causes a conflict
+if [ -f lib/commons-cli-1.2.jar ]; then
+	rm lib/commons-cli-1.2.jar
+fi
+java -jar -Xmx2g ~/bin/jcore-pipeline-runner-base*.jar pipelinerunner.xml

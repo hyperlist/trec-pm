@@ -86,6 +86,7 @@ public class InstancePreparator implements Serializable {
         tfIdfTrainData = new ArrayList<>();
         for (Document doc : documents) {
             String text = doc.getTitle() + " " + doc.getAbstractText();
+            //String text = doc.getAlltextreplacedentities();
             tfIdfTrainData.add(text);
         }
         trainTfIdfFromInternalTrainData();
@@ -111,9 +112,12 @@ public class InstancePreparator implements Serializable {
         pipes.add(new Document2TokenPipe());
         pipes.add(new TfIdfPipe());
         pipes.add(new HasGenesPipe());
+        pipes.add(new HasOrganismPipe());
         pipes.add(new MeshTagsForTokenPipe());
+        //pipes.add(new HasPositiveBoostWordPipe());
+        //pipes.add(new HasNegativeBoostWordPipe());
         //pipes.add(new HasDiseasePipe());
-        //pipes.add(new HasKeywordPipe());
+       // pipes.add(new HasKeywordPipe());
         //pipes.add(new Doc2VecPipe());
         //pipes.add(new HasPubTypePipe());
         //pipes.add(new TopicModelPipe());

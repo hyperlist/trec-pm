@@ -92,7 +92,7 @@ public class PMClassificationAnnotator extends JCasAnnotator_ImplBase {
     @Override
     public void process(final JCas aJCas) throws AnalysisEngineProcessException {
         Document classifierInput = createClassifierInput(aJCas);
-        String label = mc.predict(classifierInput);
+        final double probabiltyForPM = mc.predictProbabiltyForPM(classifierInput);
         AutoDescriptor ad;
         try {
             ad = JCasUtil.selectSingle(aJCas, AutoDescriptor.class);
@@ -101,8 +101,9 @@ public class PMClassificationAnnotator extends JCasAnnotator_ImplBase {
             ad.addToIndexes();
         }
         DocumentClass documentClass = new DocumentClass(aJCas);
-        documentClass.setClassname(label);
-        FSArray newArray = JCoReTools.addToFSArray(ad.getDocumentClasses(), documentClass);
+        documentClass.setClassname(probabiltyForPM > .5 ? "PM" : "Not PM");
+        documentClass.setConfidence(probabiltyForPM);
+        FSArray newArray = JCoReTools.addToFSArray(ad.getDocumentClasses(), documentClass, 1);
         ad.setDocumentClasses(newArray);
     }
 

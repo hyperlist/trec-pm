@@ -2,18 +2,17 @@ package at.medunigraz.imi.bst.pmclassifier;
 
 import cc.mallet.classify.Classification;
 import cc.mallet.classify.Classifier;
+import cc.mallet.classify.FeatureSelectingClassifierTrainer;
 import cc.mallet.classify.MaxEntTrainer;
-import cc.mallet.types.Instance;
-import cc.mallet.types.InstanceList;
-import cc.mallet.types.Label;
+import cc.mallet.types.*;
 import de.julielab.java.utilities.FileUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
-import java.rmi.server.UID;
+import java.util.Map;
 
-public class MalletClassifier implements Serializable{
+public class MalletClassifier implements Serializable, PMClassifier {
 
     private static final long serialVersionUID = 2018_08_02L;
 
@@ -34,9 +33,17 @@ public class MalletClassifier implements Serializable{
         train(instances);
     }
 
+    public void train( Map<String, Document> train) {
+        final InstanceList instances = instancePreparator.createClassificationInstances(train);
+        train(instances);
+    }
+
     public void train(InstanceList instances) {
         MaxEntTrainer maxEntTrainer = new MaxEntTrainer();
+//        final FeatureSelector selector = new FeatureSelector(new InfoGain.Factory(), 40000);
+//        final FeatureSelectingClassifierTrainer trainer = new FeatureSelectingClassifierTrainer(maxEntTrainer, selector);
         classifier = maxEntTrainer.train(instances);
+        //classifier = trainer.train(instances);
     }
 
 
@@ -46,6 +53,13 @@ public class MalletClassifier implements Serializable{
         Label bestLabel = classification.getLabeling().getBestLabel();
         //classification.getLabeling().value(classifier.getInstancePipe().getTargetAlphabet().lookupIndex(""))
         return (String) bestLabel.getEntry();
+    }
+
+    public double predictProbabiltyForPM(Document document) {
+        Instance instance = classifier.getInstancePipe().instanceFrom(new Instance(document, "unknown", document.getId(), ""));
+        Classification classification = classifier.classify(instance);
+        final Label pmlabel = classification.getLabeling().getLabelAlphabet().lookupLabel("PM");
+        return classification.getLabelVector().value(pmlabel);
     }
 
     public Classifier getClassifier() {
@@ -79,6 +93,7 @@ public class MalletClassifier implements Serializable{
     public void readClassifier(InputStream is) throws IOException, ClassNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(is)) {
             classifier = (Classifier) ois.readObject();
+            classifier.getInstancePipe().getDataAlphabet().stopGrowth();
             instancePreparator = (InstancePreparator) ois.readObject();
             instancePreparator.setAsInstance();
         }

@@ -3,8 +3,8 @@
     <runners>
         <runner>
             <name>CPERunner</name>
-            <pipelinepath>/home/faessler/Coding/git/trec2018/uima/preprocessing</pipelinepath>
-            <numthreads>1</numthreads>
+	    <pipelinepath>/home/faessler/Coding/git/ourtrecpm/uima/preprocessing</pipelinepath>
+            <numthreads>20</numthreads>
         </runner>
     </runners>
 </configuration>

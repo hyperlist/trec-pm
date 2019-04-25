@@ -2,6 +2,8 @@ package at.medunigraz.imi.bst.lexigram;
 
 import org.junit.*;
 
+import java.util.List;
+
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
@@ -12,6 +14,12 @@ public class LexigramTest {
     @Before
     public void SetUp() {
         Assume.assumeTrue(Lexigram.isAPIKeyLoaded());
+    }
+
+    @Test
+    public void mytest() {
+        final List<String> kras = Lexigram.addSynonymsFromBestConceptMatch("KRAS");
+        System.out.println(kras);
     }
 
     @Test

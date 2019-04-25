@@ -6,7 +6,7 @@
 
     <groupId>at.medunigraz.imi.bst</groupId>
     <artifactId>trec-pm</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -65,28 +65,11 @@
                     <execution>
                         <phase>generate-sources</phase>
                         <configuration>
-                            <tasks>
-                                <mkdir dir="${project.build.directory}/lib" />
-
-                                <get src="https://github.com/usnistgov/trec_eval/archive/v9.0.6.zip"
-                                    dest="${project.build.directory}/lib/trec_eval-9.0.6.zip"
-                                    verbose="false" usetimestamp="true" />
-                                <unzip src="${project.build.directory}/lib/trec_eval-9.0.6.zip"
-                                    dest="${project.build.directory}/lib/"/>
-                                <exec executable="make" failonerror="true"
-                                    dir="${project.build.directory}/lib/trec_eval-9.0.6/" />
-                                <move file="${project.build.directory}/lib/trec_eval-9.0.6/trec_eval"
-                                      tofile="${project.build.directory}/lib/trec_eval" />
-
-                                <get src="https://web.archive.org/web/20170514010604if_/http://trec.nist.gov:80/data/clinical/sample_eval.pl"
-                                     dest="${project.build.directory}/lib/sample_eval.pl"
-                                     verbose="false" usetimestamp="true"/>
-
-                                <get src="http://mirrors.vbi.vt.edu/mirrors/ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz"
-                                     dest="${basedir}/src/main/resources/genes/Homo_sapiens.gene_info.gz"
-                                     verbose="false" usetimestamp="true"/>
-                                <gunzip src="${basedir}/src/main/resources/genes/Homo_sapiens.gene_info.gz"/>
-                            </tasks>
+                            <target>
+                                <ant antfile="build.xml">
+                                    <target name="go"/>
+                                </ant>
+                            </target>
                         </configuration>
                         <goals>
                             <goal>run</goal>
@@ -94,24 +77,24 @@
                     </execution>
                 </executions>
             </plugin>
-        	<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.2</version>
-				<executions>
-					<execution>
-						<id>prepare-agent</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.eluder.coveralls</groupId>
-				<artifactId>coveralls-maven-plugin</artifactId>
-				<version>4.3.0</version>
-			</plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.2</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>4.3.0</version>
+            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
@@ -159,7 +142,7 @@
         <dependency>
             <groupId>de.julielab</groupId>
             <artifactId>jcore-topic-indexing-ae</artifactId>
-            <version>2.3.0-SNAPSHOT</version>
+            <version>2.4.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>commons-beanutils</groupId>
@@ -171,19 +154,21 @@
             <groupId>de.julielab</groupId>
             <artifactId>java-stdio-ipc</artifactId>
             <version>1.0.0-SNAPSHOT</version>
-        </dependency><dependency>
+        </dependency>
+        <dependency>
             <groupId>com.wcohen</groupId>
             <artifactId>com.wcohen.secondstring</artifactId>
             <version>0.1</version>
-        </dependency><dependency>
+        </dependency>
+        <dependency>
             <groupId>de.julielab</groupId>
             <artifactId>julielab-java-utilities</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
+            <version>1.0.4</version>
         </dependency>
         <dependency>
             <groupId>de.julielab</groupId>
             <artifactId>julie-xml-tools</artifactId>
-            <version>0.4.1</version>
+            <version>0.4.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -193,7 +178,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.9.4</version>
+            <version>2.9.7</version>
         </dependency>
 
         <dependency>
@@ -256,6 +241,33 @@
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
             <version>4.2</version>
+        </dependency>
+
+        <!-- If topic models should be used for the Precision Medicine Classifier -->
+        <dependency>
+            <groupId>de.julielab</groupId>
+            <artifactId>jcore-opennlp-postag-ae-biomedical-english</artifactId>
+            <version>2.4.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.julielab</groupId>
+            <artifactId>jcore-jsbd-ae-biomedical-english</artifactId>
+            <version>2.4.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.julielab</groupId>
+            <artifactId>jcore-jtbd-ae-biomedical-english</artifactId>
+            <version>2.4.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.julielab</groupId>
+            <artifactId>jcore-biolemmatizer-ae</artifactId>
+            <version>2.4.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.julielab</groupId>
+            <artifactId>jcore-topic-indexing-ae</artifactId>
+            <version>2.4.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

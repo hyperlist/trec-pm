@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+<runners>
+<runner>
+<name>CPERunner</name>
+<pipelinepath>/home/faessler/Coding/git/ourtrecpm/uima/trec2018-pubmed-indexer/</pipelinepath>
+<numthreads>10</numthreads>
+<heapsize>50G</heapsize>
+</runner>
+</runners>
+</configuration>

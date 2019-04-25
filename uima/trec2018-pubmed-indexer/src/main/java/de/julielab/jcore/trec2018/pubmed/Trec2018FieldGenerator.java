@@ -22,7 +22,7 @@ import java.util.List;
 public class Trec2018FieldGenerator extends FieldGenerator {
 
 
-    private static final Set<String> unwantedGsFields = new HashSet<>(Arrays.asList("unified_id", "title", "abstract"));
+    private static final Set<String> unwantedGsFields = new HashSet<>(Arrays.asList("unified_id", "title", "abstract", "major_mesh", "minor_mesh", "trec_doc_id", "trec_topic_number", "trec_topic_other2", "trec_topic_other2", "trec_topic_other3"));
 
     public Trec2018FieldGenerator(FilterRegistry filterRegistry) {
         super(filterRegistry);
@@ -30,11 +30,10 @@ public class Trec2018FieldGenerator extends FieldGenerator {
 
     @Override
     public Document addFields(JCas jCas, Document document) throws CASException, FieldGenerationException {
-        addPmid(jCas, document);
+        addDocId(jCas, document);
         addTitle(jCas, document);
-        addFullAbstract(jCas, document);
-        addAbstractSections(jCas, document);
-        addLastAbstractSectionOrFullAbstract(jCas, document);
+        addAbstract(jCas, document);
+        //addAbstractSections(jCas, document);
         addPublicationDate(jCas, document);
         addMeshTags(jCas, document);
         addDocumentSource(jCas, document);
@@ -43,7 +42,27 @@ public class Trec2018FieldGenerator extends FieldGenerator {
         addDocumentClasses(jCas, document);
         addGsInfo(jCas, document);
         addPublicationType(jCas, document);
+        addNegationScopes(jCas, document);
+        addMutations(jCas, document);
         return document;
+    }
+
+    private void addNegationScopes(JCas jCas, Document document) {
+        Collection<Scope> negationScopes = JCasUtil.select(jCas, Scope.class);
+        ArrayFieldValue fieldValue = new ArrayFieldValue();
+        for (Scope scope : negationScopes) {
+            fieldValue.add(new RawToken(scope.getCoveredText()));
+        }
+        document.addField("negationPhrases", fieldValue);
+    }
+
+    private void addMutations(JCas jCas, Document document) {
+        Collection<PointMutation> mutations = JCasUtil.select(jCas, PointMutation.class);
+        ArrayFieldValue fieldValue = new ArrayFieldValue();
+        for (PointMutation mutation : mutations) {
+            fieldValue.add(new RawToken(mutation.getSpecificType()));
+        }
+        document.addField("mutations", fieldValue);
     }
 
     private void addPublicationType(JCas jCas, Document document) {
@@ -81,13 +100,59 @@ public class Trec2018FieldGenerator extends FieldGenerator {
     private void addDocumentClasses(JCas jCas, Document document) {
         Optional<AutoDescriptor> any = JCasUtil.select(jCas, AutoDescriptor.class).stream().findAny();
         if (any.isPresent() && any.get().getDocumentClasses() != null) {
-            ArrayFieldValue arrayFieldValue = new ArrayFieldValue();
             AutoDescriptor ad = any.get();
-            for (int i = 0; i < ad.getDocumentClasses().size(); i++) {
-                DocumentClass documentClass = ad.getDocumentClasses(i);
-                arrayFieldValue.add(new RawToken(documentClass.getClassname()));
-            }
-            document.addField("documentClasses", arrayFieldValue);
+            if (ad.getDocumentClasses().size() != 2)
+                throw new IllegalStateException("This field generator expects two document classes given from PM classifiers. The first should be from the classifier trained on the TREC PM 2017, the second trained on 2018.");
+            DocumentClass dc2017 = ad.getDocumentClasses(0);
+            DocumentClass dc2018 = ad.getDocumentClasses(1);
+            document.addField("pmclass2017", dc2017.getClassname());
+            document.addField("pmclass2017confidence", dc2017.getConfidence());
+
+            document.addField("pmclass2018", dc2018.getClassname());
+            document.addField("pmclass2018confidence", dc2018.getConfidence());
+        }
+        Trec2018FilterBoard fb = filterRegistry.getFilterBoard(Trec2018FilterBoard.class);
+        if (fb.lstm2017 != null && fb.lstm2017.get(document.getId()) != null) {
+            final Double prob = fb.lstm2017.get(document.getId());
+            document.addField("pmclass2017lstm", prob > .5 ? "PM" : "Not PM");
+            document.addField("pmclass2017lstmconfidence", prob);
+        } else if (fb.lstm2017 != null) {
+            log.warn("No value for document {} in LSTM2017 data", document.getId());
+        }
+        if (fb.lstmatt2017 != null && fb.lstmatt2017.get(document.getId()) != null) {
+            final Double prob = fb.lstmatt2017.get(document.getId());
+            document.addField("pmclass2017lstmatt", prob > .5 ? "PM" : "Not PM");
+            document.addField("pmclass2017lstmattconfidence", prob);
+        } else if (fb.lstmatt2017 != null) {
+            log.warn("No value for document {} in LSTMATT2017 data", document.getId());
+        }
+        if (fb.gru2017 != null && fb.gru2017.get(document.getId()) != null) {
+            final Double prob = fb.gru2017.get(document.getId());
+            document.addField("pmclass2017lstmgru", prob > .5 ? "PM" : "Not PM");
+            document.addField("pmclass2017lstmgruconfidence", prob);
+        } else if (fb.gru2017 != null) {
+            log.warn("No value for document {} in GRU2017 data", document.getId());
+        }
+        if (fb.lstm2018 != null && fb.lstm2018.get(document.getId()) != null) {
+            final Double prob = fb.lstm2018.get(document.getId());
+            document.addField("pmclass2018lstm", prob > .5 ? "PM" : "Not PM");
+            document.addField("pmclass2018lstmconfidence", prob);
+        } else if (fb.lstm2018 != null) {
+            log.warn("No value for document {} in LSTM2018 data", document.getId());
+        }
+        if (fb.lstmatt2018 != null && fb.lstmatt2018.get(document.getId()) != null) {
+            final Double prob = fb.lstmatt2018.get(document.getId());
+            document.addField("pmclass2018lstmatt", prob > .5 ? "PM" : "Not PM");
+            document.addField("pmclass2018lstmattconfidence", prob);
+        } else if (fb.lstmatt2018 != null) {
+            log.warn("No value for document {} in LSTMATT2018 data", document.getId());
+        }
+        if (fb.gru2018 != null && fb.gru2018.get(document.getId()) != null) {
+            final Double prob = fb.gru2018.get(document.getId());
+            document.addField("pmclass2018lstmgru", prob > .5 ? "PM" : "Not PM");
+            document.addField("pmclass2018lstmgruconfidence", prob);
+        } else if (fb.gru2018 != null) {
+            log.warn("No value for document {} in GRU2018 data", document.getId());
         }
     }
 
@@ -107,48 +172,24 @@ public class Trec2018FieldGenerator extends FieldGenerator {
         List<CSVRecord> records = gsRecords.get(docId);
         if (records != null) {
             for (CSVRecord record : records) {
+                // Here we add all the GS information about the document. Note that this often includes multiple
+                // records because documents are repeated across topics
                 Map<String, Integer> gsHeaderMap = filterBoard.gsHeaderMap;
+
+                // Here we add the GS information for each topic separately. By making this a sub-document,
+                // the resulting field will be called 'topic_<topicNr>.<record header>' and thus make it possible
+                // to query documents depending on their topic
+                final Document gsInfoByTopic = new Document();
                 for (String header : gsHeaderMap.keySet()) {
                     if (unwantedGsFields.contains(header) || StringUtils.isBlank(header))
                         continue;
-                    String value = record.get(header);
-                    if (!StringUtils.isBlank(value)) {
-                        ArrayFieldValue fValue = (ArrayFieldValue) document.get(header);
-                        // We must add the value in both if-else-paths because the document won't keep empty arrays
-                        if (fValue == null) {
-                            fValue = new ArrayFieldValue();
-                            fValue.add(new RawToken(value));
-                            document.addField(header, fValue);
-                        } else {
-                            fValue.add(new RawToken(value));
-                        }
-                    }
+                    gsInfoByTopic.addField(header, record.get(header));
                 }
+                document.addField("topic_" + record.get("trec_topic_number"), gsInfoByTopic);
             }
         }
     }
 
-    /**
-     * We do this to reproduce the behavior of the parsing algorithm of Michel's TREC-PM-17 coworker where only the last abstract section was used in structured abstracts.
-     *
-     * @param jCas
-     * @param document
-     */
-    private void addLastAbstractSectionOrFullAbstract(JCas jCas, Document document) {
-        Collection<AbstractSection> sections = JCasUtil.select(jCas, AbstractSection.class);
-        if (sections.isEmpty()) {
-            JCasUtil.select(jCas, AbstractText.class).stream().findAny().ifPresent(anno -> document.addField("abstract_lastsection", anno.getCoveredText()));
-        } else {
-            Optional<AbstractSection> reduce = sections.stream().reduce((a, b) -> b);
-            if (reduce.isPresent()) {
-                AbstractSection lastSection = reduce.get();
-                AbstractSectionHeading heading = (AbstractSectionHeading) lastSection.getAbstractSectionHeading();
-                String nlmCategory = heading.getNlmCategory();
-                document.addField("lastAbstractSectionNlmCategory", nlmCategory);
-                document.addField("abstract_lastsection", lastSection.getCoveredText());
-            }
-        }
-    }
 
     private void addAbstractSections(JCas jCas, Document document) {
         Collection<AbstractSection> sections = JCasUtil.select(jCas, AbstractSection.class);
@@ -161,9 +202,6 @@ public class Trec2018FieldGenerator extends FieldGenerator {
         }
     }
 
-    private void addDocumentSource(JCas jCas, Document document) {
-        document.addField("documentSource", "medline");
-    }
 
     private void addPublicationDate(JCas jCas, Document document) {
         Header header = JCasUtil.selectSingle(jCas, Header.class);
@@ -172,10 +210,6 @@ public class Trec2018FieldGenerator extends FieldGenerator {
         document.addField("publicationDate", pubDate.getMonth() + " " + pubDate.getYear());
     }
 
-    private void addPmid(JCas jCas, Document document) {
-        String pmid = JCoReTools.getDocId(jCas);
-        document.addField("pubmedId", pmid);
-    }
 
     private void addMeshTags(JCas jCas, Document document) {
         Collection<MeshHeading> meshHeadings = JCasUtil.select(jCas, MeshHeading.class);
@@ -195,15 +229,30 @@ public class Trec2018FieldGenerator extends FieldGenerator {
         document.addField("meshMinor", minorTopicHeadings);
     }
 
-    private void addFullAbstract(JCas jCas, Document document) {
-        Collection<AbstractText> abstractAnnotation = JCasUtil.select(jCas, AbstractText.class);
-        abstractAnnotation.stream().findFirst().ifPresent(abstractText -> document.addField("abstract", abstractText.getCoveredText()));
+
+    private void addDocumentSource(JCas jCas, Document document) {
+        String source = "PUBMED";
+        if (document.getId().toUpperCase().contains("ASCO"))
+            source = "ASCO";
+        if (document.getId().toUpperCase().contains("AACR"))
+            source = "AACR";
+        document.addField("documentSource", source);
+    }
+
+    private void addDocId(JCas jCas, Document document) {
+        String pmid = JCoReTools.getDocId(jCas);
+        document.addField("pubmedId", pmid);
+        document.setId(pmid);
+    }
+
+
+    private void addAbstract(JCas jCas, Document document) {
+        Collection<AbstractText> titles = JCasUtil.select(jCas, AbstractText.class);
+        titles.stream().findFirst().ifPresent(abstractText -> document.addField("abstract", abstractText.getCoveredText()));
     }
 
     private void addTitle(JCas jCas, Document document) {
         Collection<Title> titles = JCasUtil.select(jCas, Title.class);
         titles.stream().findFirst().ifPresent(title -> document.addField("title", title.getCoveredText()));
     }
-
-
 }

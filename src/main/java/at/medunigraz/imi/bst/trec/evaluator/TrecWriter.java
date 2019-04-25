@@ -28,15 +28,16 @@ public class TrecWriter implements Closeable {
 		this.runName = runName;
 
 		try {
-			writer = new CSVWriter(new FileWriter(output), '\t', CSVWriter.NO_QUOTE_CHARACTER);
+			writer = new CSVWriter(new FileWriter(output), '\t', CSVWriter.NO_QUOTE_CHARACTER, '\\', System.getProperty("line.separator"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	private boolean checkRunName(String runName) {
-		final Pattern valid = Pattern.compile(VALID_RUN_NAME_REGEX);
-		return valid.matcher(runName).matches();
+		//final Pattern valid = Pattern.compile(VALID_RUN_NAME_REGEX);
+		//return valid.matcher(runName).matches();
+		return true;
 	}
 	
 	public void write(List<ResultList> resultListSet) {
@@ -74,7 +75,7 @@ public class TrecWriter implements Closeable {
 		try {
 			writer.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new IllegalStateException(e);
 		}
 	}
 

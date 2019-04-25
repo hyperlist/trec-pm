@@ -3,8 +3,11 @@
     <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
     <primitive>false</primitive>
     <delegateAnalysisEngineSpecifiers>
+        <delegateAnalysisEngine key="JCoRe Pipeline AAE">
+            <import location="AggregateAnalysisEngine.xml"/>
+        </delegateAnalysisEngine>
         <delegateAnalysisEngine key="JCoRe XMI Database Writer">
-            <import name="CAS Consumers" location="JCoRe XMI Database Writer.xml"/>
+            <import location="JCoRe XMI Database Writer.xml"/>
         </delegateAnalysisEngine>
     </delegateAnalysisEngineSpecifiers>
     <analysisEngineMetaData>
@@ -13,6 +16,7 @@
         <configurationParameterSettings/>
         <flowConstraints>
             <fixedFlow>
+                <node>JCoRe Pipeline AAE</node>
                 <node>JCoRe XMI Database Writer</node>
             </fixedFlow>
         </flowConstraints>
