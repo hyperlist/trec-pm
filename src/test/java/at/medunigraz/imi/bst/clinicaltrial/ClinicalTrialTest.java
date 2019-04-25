@@ -33,7 +33,7 @@ public class ClinicalTrialTest {
         assertThat(trial.sex, contains("female", "male"));
         assertThat(trial.minAge, is(18));
         assertThat(trial.maxAge, is(65));
-        assertThat(trial.inclusion, containsString("Endstage"));
+        assertThat(trial.inclusion, containsString("End-stage"));
         assertThat(trial.inclusion, containsString("survival"));
         assertThat(trial.exclusion, containsString("Multiple"));
         assertThat(trial.exclusion, containsString("individual"));

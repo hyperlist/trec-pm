@@ -58,7 +58,7 @@ public class TemplateQueryDecoratorTest extends QueryDecoratorTest {
         Map<String, String> properties = new HashMap<>();
         properties.put("prop1", "value1");
         properties.put("prop2", "value2");
-        Query decoratedQuery = new TemplateQueryDecorator(template, new DummyElasticSearchQuery(), properties);
+        Query decoratedQuery = new TemplateQueryDecorator(template, new StaticMapQueryDecorator(properties, new DummyElasticSearchQuery()));
 
         topic.withNumber(42);
         decoratedQuery.query(topic);
