@@ -160,9 +160,9 @@ public class Experiment extends Thread {
         } else if (goldStandard == GoldStandard.OFFICIAL && task == Task.CLINICAL_TRIALS && year == 2018) {
             return "qrels-treceval-clinical_trials.2018.txt";
         } else if (goldStandard == GoldStandard.INTERNAL && (task == Task.PUBMED || task == Task.PUBMED_ONLINE) && year == 2018) {
-            return "gsheets-abstracts-2018.qrels";
+            return "gsheets-abstracts.2018.qrels";
         } else if (goldStandard == GoldStandard.INTERNAL && task == Task.CLINICAL_TRIALS && year == 2018) {
-            return "gsheets-trials-2018.qrels";
+            return "gsheets-trials.2018.qrels";
         } else {
             throw new UnsupportedOperationException("Invalid combination of gold standard, task and year.");
         }
@@ -171,7 +171,7 @@ public class Experiment extends Thread {
     private File getSampleGoldStandard() {
         if (hasSampleGoldStandard()) {
             if (year == 2017)
-                return new File(getClass().getResource("/gold-standard/sample-qrels-final-abstracts.txt").getPath());
+                return new File(getClass().getResource("/gold-standard/sample-qrels-final-abstracts.2017.txt").getPath());
             else if (year == 2018 && task == Task.PUBMED)
                 return new File("resources/qrels-sample-abstracts.txt");
             else if (year == 2018 && task == Task.CLINICAL_TRIALS)
