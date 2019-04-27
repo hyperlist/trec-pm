@@ -22,7 +22,6 @@ public class CrossVal {
 
         Map<String, Document> documents = DataReader.readDocuments(new File(jsongsdocs));
         LOG.info("Got {} documents for training", documents.size());
-        //inferTopics(documents.values());
         InstancePreparator ip = InstancePreparator.getInstance();
         classifier.setInstancePreparator(ip);
 
