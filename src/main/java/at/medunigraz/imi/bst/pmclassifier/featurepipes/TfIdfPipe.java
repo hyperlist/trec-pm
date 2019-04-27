@@ -21,7 +21,7 @@ public class TfIdfPipe extends Pipe {
 
     public TfIdfPipe() {
         try {
-            stopwords = FileUtilities.getReaderFromFile(new File("stopwords.txt")).lines().collect(Collectors.toSet());
+            stopwords = FileUtilities.getReaderFromFile(new File("resources/stopwords.txt")).lines().collect(Collectors.toSet());
         } catch (IOException e) {
             e.printStackTrace();
         }

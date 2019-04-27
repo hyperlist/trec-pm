@@ -1,33 +1,16 @@
 package at.medunigraz.imi.bst.pmclassifier.apps;
 
 import at.medunigraz.imi.bst.pmclassifier.*;
-import at.medunigraz.imi.bst.pmclassifier.lucene.LuceneClassifier;
-import cc.mallet.types.FeatureSelection;
-import cc.mallet.types.InfoGain;
-import cc.mallet.types.InstanceList;
-import de.julielab.jcore.ae.topicindexing.TopicIndexer;
-import de.julielab.jcore.ae.topicindexing.TopicModelProvider;
-import de.julielab.jcore.types.DocumentTopics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.uima.UIMAException;
-import org.apache.uima.analysis_engine.AnalysisEngine;
-import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.factory.ExternalResourceFactory;
-import org.apache.uima.fit.factory.JCasFactory;
-import org.apache.uima.fit.util.JCasUtil;
-import org.apache.uima.jcas.JCas;
-import org.apache.uima.jcas.cas.DoubleArray;
 import org.elasticsearch.common.util.set.Sets;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 public class CrossVal {
     private static final Logger LOG = LogManager.getLogger();
@@ -104,53 +87,6 @@ public class CrossVal {
         //alwaysWrong.forEach(System.out::println);
     }
 
-    private static void inferTopics(Collection<Document> values) {
-        try {
-            AnalysisEngine sentenceDetector = AnalysisEngineFactory.createEngine(
-                    "de.julielab.jcore.ae.jsbd.desc.jcore-jsbd-ae-biomedical-english");
-            AnalysisEngine tokenizer = AnalysisEngineFactory.createEngine(
-                    "de.julielab.jcore.ae.jtbd.desc.jcore-jtbd-ae-biomedical-english");
-            AnalysisEngine posTagger = AnalysisEngineFactory.createEngine(
-                    "de.julielab.jcore.ae.opennlp.postag.desc.jcore-opennlp"
-                            + "-postag-ae-biomedical-english");
-            AnalysisEngine bioLemmatizer = AnalysisEngineFactory.createEngine(
-                    "de.julielab.jcore.ae.biolemmatizer.desc.jcore-biolemmatizer-ae");
-            AnalysisEngineDescription desc = AnalysisEngineFactory.createEngineDescription("de.julielab.jcore.ae.topicindexing.desc.jcore-topic-indexing-ae",
-                    TopicIndexer.PARAM_TOPIC_MODEL_CONFIG, "uima/topicmodels/nt100-a1.0-b0.1-gs.xml",
-                    TopicIndexer.PARAM_NUM_DISPLAYED_TOPIC_WORDS, 0,
-                    TopicIndexer.PARAM_STORE_IN_MODEL_INDEX, false);
-            ExternalResourceFactory.createDependencyAndBind(desc, TopicIndexer.RESOURCE_KEY_MODEL_FILE_NAME, TopicModelProvider.class, new File("uima/topicmodels/nt100-a1.0-b0.1-gs.mod.gz").toURI().toURL().toString());
-            AnalysisEngine topicIndexer = AnalysisEngineFactory.createEngine(desc);
-            JCas jCas = JCasFactory.createJCas("de.julielab.jcore.types.jcore-document-meta-pubmed-types",
-                    "de.julielab.jcore.types.extensions.jcore-document-meta-extension-types",
-                    "de.julielab.jcore.types.jcore-document-structure-pubmed-types",
-                    "de.julielab.jcore.types.jcore-morpho-syntax-types");
-
-            values.stream().forEach(d -> {
-                jCas.setDocumentText(d.getTitle() + " " + d.getAbstractText());
-                try {
-                    sentenceDetector.process(jCas);
-                    tokenizer.process(jCas);
-                    posTagger.process(jCas);
-                    bioLemmatizer.process(jCas);
-                    topicIndexer.process(jCas);
-                    DocumentTopics documentTopics = JCasUtil.selectSingle(jCas, DocumentTopics.class);
-                    DoubleArray weights = documentTopics.getWeights();
-                    double[] doubles = weights.toArray();
-                    d.setTopicWeight(doubles);
-                    jCas.reset();
-                } catch (AnalysisEngineProcessException e) {
-                    throw new RuntimeException(e);
-                }
-
-
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (UIMAException e) {
-            e.printStackTrace();
-        }
-    }
 
     private static List<List<Document>> makeStratifiedPartitions(List<Document> pmList, List<Document> notPmList, int numFolds) {
         List<List<Document>> ret = new ArrayList<>(numFolds);
