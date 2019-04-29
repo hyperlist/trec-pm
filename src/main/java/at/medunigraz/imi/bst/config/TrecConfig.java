@@ -21,6 +21,10 @@ public final class TrecConfig {
 
     public static final String LEXIGRAM_APIKEY = getString("LEXIGRAM_APIKEY");
 
+    public static final String COSTOSYS_CONFIG = getString("COSTOSYS_CONFIG");
+    public static final String COSTOSYS_ANNOTATIONS_LIST = getString("COSTOSYS_ANNOTATIONS_LIST");
+    public static final String COSTOSYS_BASEDOCUMENTS = getString("COSTOSYS_BASEDOCUMENTS");
+
 
     /* DATA - MEDLINE */
     public static final String MEDLINE_FOLDER_COMPRESSED = "/Volumes/PabloSSD/trec/medline_xml_all/compressed/";
