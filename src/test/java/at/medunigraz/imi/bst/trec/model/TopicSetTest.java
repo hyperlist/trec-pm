@@ -13,7 +13,7 @@ public class TopicSetTest {
 	@Test
 	public void testFromXML() {
 		File topicsFile = new File(getClass().getResource("/topics/topics2017.xml").getPath());
-		Set<Topic> topics = (new TopicSet(topicsFile)).getTopics();
+		Set<Topic> topics = (new TopicSet(topicsFile, "2017")).getTopics();
 		
 		assertEquals(30, topics.size());
 		assertTrue(topics.contains(new Topic().withNumber(30)));

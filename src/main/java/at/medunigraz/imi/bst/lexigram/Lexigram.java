@@ -214,7 +214,7 @@ public class Lexigram {
     public static void main(String[] args) {
         final File topicsFile = new File(CSVStatsWriter.class.getResource("/topics/topics2018.xml").getPath());
 
-        TopicSet topicSet = new TopicSet(topicsFile);
+        TopicSet topicSet = new TopicSet(topicsFile, "2018");
         JSONObject output = createDump(topicSet);
 
         System.out.println(JsonUtils.prettify(output));

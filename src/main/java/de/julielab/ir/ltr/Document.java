@@ -1,6 +1,7 @@
 package de.julielab.ir.ltr;
 
 import at.medunigraz.imi.bst.trec.model.Topic;
+import cc.mallet.types.FeatureVector;
 import de.julielab.ir.OriginalDocumentRetrieval;
 import de.julielab.ir.ltr.features.IRScore;
 import org.apache.uima.jcas.JCas;
@@ -29,6 +30,24 @@ public class Document {
      * {@link de.julielab.ir.OriginalDocumentRetrieval#setXmiCasDataToDocuments(DocumentList)}.
      */
     private byte[][] fullDocumentData;
+    /**
+     * The feature vector that is created for this document for the LtR algorithms.
+     */
+    private FeatureVector fv;
+    /**
+     * The deserialized version of fullDocumentData. To be created by {@link de.julielab.ir.OriginalDocumentRetrieval#parseXmiDataIntoJCas(byte[][])}.
+     * This field will mostly be null because it is very expansive to keep a lot of CAS instances around.
+     * Thus, this field will be populated on request.
+     */
+    private JCas cas;
+
+    public FeatureVector getFeatureVector() {
+        return fv;
+    }
+
+    public void setFeatureVector(FeatureVector fv) {
+        this.fv = fv;
+    }
 
     /**
      * Returns the UIMA CAS of the document. This can only be done if {@link #setFullDocumentData(byte[][])} has
@@ -45,14 +64,6 @@ public class Document {
             OriginalDocumentRetrieval.getInstance().parseXmiDataIntoJCas(fullDocumentData);
         return cas;
     }
-
-    /**
-     * The deserialized version of fullDocumentData. To be created by {@link de.julielab.ir.OriginalDocumentRetrieval#parseXmiDataIntoJCas(byte[][])}.
-     * This field will mostly be null because it is very expansive to keep a lot of CAS instances around.
-     * Thus, this field will be populated on request.
-
-     */
-    private JCas cas;
 
     public int getRelevance() {
 
@@ -86,6 +97,7 @@ public class Document {
         return topic;
     }
 
+
     public void setTopic(Topic topic) {
         this.topic = topic;
     }
@@ -104,5 +116,15 @@ public class Document {
 
     public void setFullDocumentData(byte[][] fullDocumentData) {
         this.fullDocumentData = fullDocumentData;
+    }
+
+    /**
+     * Releases the JCas of this document and sets its reference to <tt>null</tt>. If the JCas is required again
+     * after this call, its XMI data will be parsed into some CAS retrieved from {@link OriginalDocumentRetrieval#casPool}.
+     */
+    public void releaseJCas() {
+        if (cas != null)
+            cas.release();
+        cas = null;
     }
 }

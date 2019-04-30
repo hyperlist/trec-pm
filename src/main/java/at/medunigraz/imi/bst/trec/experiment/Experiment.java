@@ -47,7 +47,7 @@ public class Experiment extends Thread {
         LOG.info("Running collection " + name + "...");
 
         File example = new File(CSVStatsWriter.class.getResource("/topics/topics" + year + ".xml").getPath());
-        TopicSet topicSet = new TopicSet(example);
+        TopicSet topicSet = new TopicSet(example, task.name() + year);
 
         File resultsDir = new File(this.resultsDir);
         if (!resultsDir.exists())

@@ -206,8 +206,14 @@ public class OriginalDocumentRetrieval {
         return null;
     }
 
+    /**
+     * Retrieves the XMI data from the database for the document IDs of the passed documents. This methods skips
+     * documents that already have their full document data set.
+     *
+     * @param documents The documents to populate with the UIMA XMI CAS data.
+     */
     public void setXmiCasDataToDocuments(DocumentList documents) {
-        final Iterator<byte[][]> xmiData = getDocuments(documents.stream().map(d -> new String[]{d.getId()}).collect(Collectors.toList()));
+        final Iterator<byte[][]> xmiData = getDocuments(documents.stream().filter(d -> d.getFullDocumentData() == null).map(d -> new String[]{d.getId()}).collect(Collectors.toList()));
         Map<String, byte[][]> dataByDocId = new HashMap<>();
         while (xmiData.hasNext()) {
             byte[][] data = xmiData.next();
@@ -220,7 +226,7 @@ public class OriginalDocumentRetrieval {
             final Document doc = docsIt.next();
             final byte[][] documentData = xmiData.next();
             if (!dataByDocId.containsKey(doc.getId()))
-            throw new IllegalStateException("The document with ID " + doc.getId() + " was not returned from the database. Another cause for this error would be that the database response");
+                throw new IllegalStateException("The document with ID " + doc.getId() + " was not returned from the database. Another cause for this error would be that the database response");
             doc.setFullDocumentData(documentData);
         }
     }
