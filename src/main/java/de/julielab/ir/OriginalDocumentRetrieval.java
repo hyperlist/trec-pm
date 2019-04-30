@@ -1,6 +1,8 @@
 package de.julielab.ir;
 
 import at.medunigraz.imi.bst.config.TrecConfig;
+import de.julielab.ir.ltr.Document;
+import de.julielab.ir.ltr.DocumentList;
 import de.julielab.java.utilities.FileUtilities;
 import de.julielab.xml.XmiBuilder;
 import de.julielab.xml.XmiSplitConstants;
@@ -10,12 +12,19 @@ import de.julielab.xmlData.dataBase.DataBaseConnector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.uima.UIMAException;
+import org.apache.uima.cas.CASException;
 import org.apache.uima.cas.impl.XmiCasDeserializer;
 import org.apache.uima.fit.factory.JCasFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
+import org.apache.uima.resource.metadata.impl.ProcessingResourceMetaData_impl;
+import org.apache.uima.util.CasPool;
 import org.xml.sax.SAXException;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -43,6 +52,11 @@ public class OriginalDocumentRetrieval {
      * retrieved data for the keys, the document and the annotation data.
      */
     private final int primaryKeyLength;
+    /**
+     * CAS objects are expensive to create, especially in terms of memory, but also in CPU time. Reusing them
+     * is much more appropriate which is why we use a CasPool.
+     */
+    private CasPool casPool;
     private Logger log = LogManager.getLogger();
     /**
      * The object that offers convenience methods to retrieve documents from a Postgres database.
@@ -65,11 +79,15 @@ public class OriginalDocumentRetrieval {
      */
     private String[] schemaNames;
 
-    private OriginalDocumentRetrieval() throws IOException {
+    private OriginalDocumentRetrieval() {
 
-        dbc = new DataBaseConnector(TrecConfig.COSTOSYS_CONFIG);
-        try (BufferedReader br = FileUtilities.getReaderFromFile(new File(TrecConfig.COSTOSYS_ANNOTATIONS_LIST))) {
-            annotationTypesToRetrieve = br.lines().filter(Predicate.not(String::isBlank)).map(String::trim).toArray(String[]::new);
+        try {
+            dbc = new DataBaseConnector(TrecConfig.COSTOSYS_CONFIG);
+            try (BufferedReader br = FileUtilities.getReaderFromFile(new File(TrecConfig.COSTOSYS_ANNOTATIONS_LIST))) {
+                annotationTypesToRetrieve = br.lines().filter(Predicate.not(String::isBlank)).map(String::trim).toArray(String[]::new);
+            }
+        } catch (IOException e) {
+            log.error("Could not create the OriginalDocumentRetrieval because the DBC configuration could not be read", e);
         }
         // This looks more complicated as it is. We just:
         // 1. Add the base document table be the first stream
@@ -81,7 +99,7 @@ public class OriginalDocumentRetrieval {
         tablesToJoin = Stream.concat(Stream.of(TrecConfig.COSTOSYS_BASEDOCUMENTS),
                 Stream.of(annotationTypesToRetrieve)
                         .map(type -> type.replaceAll("\\.", "_").toLowerCase())
-                        .map(table -> dbc.getActiveDataPGSchema()+"."+table))
+                        .map(table -> dbc.getActiveDataPGSchema() + "." + table))
                 .toArray(String[]::new);
         final List<Map<String, String>> primaryKeyFields = dbc.getActiveTableFieldConfiguration().getPrimaryKeyFields().collect(Collectors.toList());
         primaryKeyLength = primaryKeyFields.size();
@@ -99,10 +117,29 @@ public class OriginalDocumentRetrieval {
             namespaceMap = getNamespaceMap();
         }
         xmiBuilder = new XmiBuilder(namespaceMap, annotationTypesToRetrieve);
+
+
+        try {
+            // Create a CasPool.
+            String[] typeSystemDescriptorNames;
+            try (BufferedReader br = FileUtilities.getReaderFromFile(new File(TrecConfig.UIMA_TYPES_DESCRIPTORNAMES))) {
+                typeSystemDescriptorNames = br.lines().filter(Predicate.not(String::isBlank)).map(String::trim).toArray(String[]::new);
+            }
+            final TypeSystemDescription tsDesc = TypeSystemDescriptionFactory.createTypeSystemDescription(typeSystemDescriptorNames);
+            final ProcessingResourceMetaData_impl metaData = new ProcessingResourceMetaData_impl();
+            metaData.setTypeSystem(tsDesc);
+            try {
+                casPool = new CasPool(10, metaData);
+            } catch (ResourceInitializationException e) {
+                log.error("Could not create CAS pool", e);
+            }
+        } catch (IOException e) {
+            log.error("The CAS pool could not be created because the file with the UIMA types to load could not be read", e);
+        }
     }
 
 
-    public static OriginalDocumentRetrieval getInstance() throws IOException {
+    public static OriginalDocumentRetrieval getInstance() {
         if (instance == null) {
             instance = new OriginalDocumentRetrieval();
         }
@@ -114,45 +151,12 @@ public class OriginalDocumentRetrieval {
      * is actually the same for each call of {@link Iterator#next()} and that each such call will reset the CAS.
      * Thus, before advancing the iterator, all required processing should have finished with the current
      * CAS contents.
+     *
      * @param ids The IDs of the documents to retrieve from the database.
      * @return An iterator for the retrieved documents.
      */
-    public Iterator<JCas> getDocuments(List<Object[]> ids) {
-        final DBCIterator<byte[][]> dbcIterator = dbc.retrieveColumnsByTableSchema(ids, tablesToJoin, schemaNames);
-        try {
-            return new Iterator<>() {
-
-                private JCas cas = JCasFactory.createJCas("de.julielab.jcore.types.jcore-all-types");
-
-                @Override
-                public boolean hasNext() {
-                    return dbcIterator.hasNext();
-                }
-
-                @Override
-                public JCas next() {
-                    cas.reset();
-                    final byte[][] xmiData = dbcIterator.next();
-                    LinkedHashMap<String, InputStream> dataMap = new LinkedHashMap<>();
-                    for (int i = 0; i < tablesToJoin.length; i++) {
-                        // Here we need to calculate with the offset of the primary key elements that is contained
-                        // in the xmiData byte[][] structure: The first positions of the array are just the primary
-                        // key elements.
-                        dataMap.put(tablesToJoin[i], new ByteArrayInputStream(xmiData[i + primaryKeyLength]));
-                    }
-                    final ByteArrayOutputStream xmiBaos = xmiBuilder.buildXmi(dataMap, TrecConfig.COSTOSYS_BASEDOCUMENTS, cas.getTypeSystem());
-                    try {
-                        XmiCasDeserializer.deserialize(new ByteArrayInputStream(xmiBaos.toByteArray()), cas.getCas());
-                    } catch (SAXException | IOException e) {
-                        log.error("Could not deserialize XMI data into a CAS", e);
-                    }
-                    return cas;
-                }
-            };
-        } catch (UIMAException e) {
-            log.error("Could not create an iterator to return CAS data from the database", e);
-        }
-        return null;
+    public Iterator<byte[][]> getDocuments(List<Object[]> ids) {
+        return dbc.retrieveColumnsByTableSchema(ids, tablesToJoin, schemaNames);
     }
 
     private Map<String, String> getNamespaceMap() {
@@ -179,5 +183,45 @@ public class OriginalDocumentRetrieval {
                     dbc.getActiveDataPGSchema() + "." + XmiSplitConstants.XMI_NS_TABLE);
         }
         return map;
+    }
+
+    public JCas parseXmiDataIntoJCas(byte[][] xmiData) {
+        LinkedHashMap<String, InputStream> dataMap = new LinkedHashMap<>();
+        for (int i = 0; i < tablesToJoin.length; i++) {
+            // Here we need to calculate with the offset of the primary key elements that is contained
+            // in the xmiData byte[][] structure: The first positions of the array are just the primary
+            // key elements.
+            dataMap.put(tablesToJoin[i], new ByteArrayInputStream(xmiData[i + primaryKeyLength]));
+        }
+        try {
+            final JCas cas = casPool.getCas().getJCas();
+            final ByteArrayOutputStream xmiBaos = xmiBuilder.buildXmi(dataMap, TrecConfig.COSTOSYS_BASEDOCUMENTS, cas.getTypeSystem());
+            XmiCasDeserializer.deserialize(new ByteArrayInputStream(xmiBaos.toByteArray()), cas.getCas());
+            return cas;
+        } catch (SAXException | IOException e) {
+            log.error("Could not deserialize XMI data into a CAS", e);
+        } catch (CASException e) {
+            log.error("Could not retrieve JCas from CAS", e);
+        }
+        return null;
+    }
+
+    public void setXmiCasDataToDocuments(DocumentList documents) {
+        final Iterator<byte[][]> xmiData = getDocuments(documents.stream().map(d -> new String[]{d.getId()}).collect(Collectors.toList()));
+        Map<String, byte[][]> dataByDocId = new HashMap<>();
+        while (xmiData.hasNext()) {
+            byte[][] data = xmiData.next();
+            String id = new String(data[0], StandardCharsets.UTF_8);
+            dataByDocId.put(id, data);
+        }
+
+        final Iterator<Document> docsIt = documents.iterator();
+        while (docsIt.hasNext()) {
+            final Document doc = docsIt.next();
+            final byte[][] documentData = xmiData.next();
+            if (!dataByDocId.containsKey(doc.getId()))
+            throw new IllegalStateException("The document with ID " + doc.getId() + " was not returned from the database. Another cause for this error would be that the database response");
+            doc.setFullDocumentData(documentData);
+        }
     }
 }

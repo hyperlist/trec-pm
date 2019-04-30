@@ -25,6 +25,8 @@ public final class TrecConfig {
     public static final String COSTOSYS_ANNOTATIONS_LIST = getString("COSTOSYS_ANNOTATIONS_LIST");
     public static final String COSTOSYS_BASEDOCUMENTS = getString("COSTOSYS_BASEDOCUMENTS");
 
+    public static final String UIMA_TYPES_DESCRIPTORNAMES = getString("UIMA_TYPES_DESCRIPTORNAMES");
+
 
     /* DATA - MEDLINE */
     public static final String MEDLINE_FOLDER_COMPRESSED = "/Volumes/PabloSSD/trec/medline_xml_all/compressed/";

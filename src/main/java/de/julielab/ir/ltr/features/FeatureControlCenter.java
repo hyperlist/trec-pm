@@ -4,6 +4,14 @@ import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.uima.cas.TypeSystem;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
+import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.impl.CasManager_impl;
+import org.apache.uima.resource.impl.ResourceManager_impl;
+import org.apache.uima.resource.metadata.TypeSystemDescription;
+import org.apache.uima.resource.metadata.impl.ProcessingResourceMetaData_impl;
+import org.apache.uima.util.CasPool;
 
 import static de.julielab.ir.ltr.features.FCConstants.*;
 import static de.julielab.java.utilities.ConfigurationUtilities.*;
