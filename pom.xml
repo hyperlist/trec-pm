@@ -251,6 +251,11 @@
             <artifactId>jcore-xmi-splitter</artifactId>
             <version>2.3.3</version>
         </dependency>
+        <dependency>
+            <groupId>de.julielab</groupId>
+            <artifactId>jcore-types</artifactId>
+            <version>2.4.0</version>
+        </dependency>
     </dependencies>
 
 </project>

@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,6 +38,11 @@ public class OriginalDocumentRetrieval {
      * from the database. It also makes takes the namespace map to then assembly complete XMI documents.
      */
     private final XmiBuilder xmiBuilder;
+    /**
+     * The length of the primary key of the original documents. Used to determine the correct locations in the
+     * retrieved data for the keys, the document and the annotation data.
+     */
+    private final int primaryKeyLength;
     private Logger log = LogManager.getLogger();
     /**
      * The object that offers convenience methods to retrieve documents from a Postgres database.
@@ -63,12 +69,27 @@ public class OriginalDocumentRetrieval {
 
         dbc = new DataBaseConnector(TrecConfig.COSTOSYS_CONFIG);
         try (BufferedReader br = FileUtilities.getReaderFromFile(new File(TrecConfig.COSTOSYS_ANNOTATIONS_LIST))) {
-            annotationTypesToRetrieve = br.lines().toArray(String[]::new);
+            annotationTypesToRetrieve = br.lines().filter(Predicate.not(String::isBlank)).map(String::trim).toArray(String[]::new);
         }
-        tablesToJoin = Stream.of(annotationTypesToRetrieve).map(type -> type.replaceAll("\\.", "_").toLowerCase()).toArray(String[]::new);
+        // This looks more complicated as it is. We just:
+        // 1. Add the base document table be the first stream
+        // 2. Add the the annotation tables by converting the Java names of the annotation types into their
+        //    table names and prepend the active Postgres data schema. That the tables will be found there is
+        //    actually just a convention and rather unflexible. Perhaps we will need to make this configurable in
+        //    the future.
+        // 3. Now we have the list of schema-qualified tables to query from the database.
+        tablesToJoin = Stream.concat(Stream.of(TrecConfig.COSTOSYS_BASEDOCUMENTS),
+                Stream.of(annotationTypesToRetrieve)
+                        .map(type -> type.replaceAll("\\.", "_").toLowerCase())
+                        .map(table -> dbc.getActiveDataPGSchema()+"."+table))
+                .toArray(String[]::new);
         final List<Map<String, String>> primaryKeyFields = dbc.getActiveTableFieldConfiguration().getPrimaryKeyFields().collect(Collectors.toList());
-        final String baseDocumentTableSchema = dbc.addXmiDocumentFieldConfiguration(primaryKeyFields, true).getName();
-        final String annotationTableSchema = dbc.addXmiAnnotationFieldConfiguration(primaryKeyFields, true).getName();
+        primaryKeyLength = primaryKeyFields.size();
+        // The XMI schema has always the same structure: The primary key of the documents plus some fields for the actual XMI data
+        // and other stuff. This is why we don't define the XMI schemas manually in costosys.xml but use this method.
+        // This is just convenience.
+        final String baseDocumentTableSchema = dbc.addXmiDocumentFieldConfiguration(primaryKeyFields, false).getName();
+        final String annotationTableSchema = dbc.addXmiAnnotationFieldConfiguration(primaryKeyFields, false).getName();
         schemaNames = new String[tablesToJoin.length];
         schemaNames[0] = baseDocumentTableSchema;
         for (int i = 1; i < schemaNames.length; i++) {
@@ -80,13 +101,11 @@ public class OriginalDocumentRetrieval {
         xmiBuilder = new XmiBuilder(namespaceMap, annotationTypesToRetrieve);
     }
 
-    public static void initialize() throws IOException {
+
+    public static OriginalDocumentRetrieval getInstance() throws IOException {
         if (instance == null) {
             instance = new OriginalDocumentRetrieval();
         }
-    }
-
-    public static OriginalDocumentRetrieval getInstance() {
         return instance;
     }
 
@@ -116,7 +135,10 @@ public class OriginalDocumentRetrieval {
                     final byte[][] xmiData = dbcIterator.next();
                     LinkedHashMap<String, InputStream> dataMap = new LinkedHashMap<>();
                     for (int i = 0; i < tablesToJoin.length; i++) {
-                        dataMap.put(tablesToJoin[i], new ByteArrayInputStream(xmiData[i]));
+                        // Here we need to calculate with the offset of the primary key elements that is contained
+                        // in the xmiData byte[][] structure: The first positions of the array are just the primary
+                        // key elements.
+                        dataMap.put(tablesToJoin[i], new ByteArrayInputStream(xmiData[i + primaryKeyLength]));
                     }
                     final ByteArrayOutputStream xmiBaos = xmiBuilder.buildXmi(dataMap, TrecConfig.COSTOSYS_BASEDOCUMENTS, cas.getTypeSystem());
                     try {
