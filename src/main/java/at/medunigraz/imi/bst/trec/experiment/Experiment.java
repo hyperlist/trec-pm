@@ -21,12 +21,17 @@ public class Experiment extends Thread {
     private static final int YEAR_PUBLISHED_GS = 2017;
     public Metrics allMetrics = null;
     private Query decorator;
+    private Challenge challenge;
     private Task task;
     private GoldStandard goldStandard;
     private int year;
     private String experimentName = null;
     private String statsDir = "stats/";
     private String resultsDir = "results/";
+
+    public void setChallenge(Challenge challenge) {
+        this.challenge = challenge;
+    }
 
     public String getStatsDir() {
         return statsDir;
@@ -47,7 +52,7 @@ public class Experiment extends Thread {
         LOG.info("Running collection " + name + "...");
 
         File example = new File(CSVStatsWriter.class.getResource("/topics/topics" + year + ".xml").getPath());
-        TopicSet topicSet = new TopicSet(example, task.name() + year);
+        TopicSet topicSet = new TopicSet(example, challenge, task, year);
 
         File resultsDir = new File(this.resultsDir);
         if (!resultsDir.exists())
@@ -176,7 +181,8 @@ public class Experiment extends Thread {
                 return new File("resources/qrels-sample-abstracts.txt");
             else if (year == 2018 && task == Task.CLINICAL_TRIALS)
                 return new File("resources/qrels-sample-trials.txt");
-            else throw new IllegalStateException("There should be a sample gold standard but no condition did meet for year, task, gstype: " + year + ", " + task + ", " + goldStandard);
+            else
+                throw new IllegalStateException("There should be a sample gold standard but no condition did meet for year, task, gstype: " + year + ", " + task + ", " + goldStandard);
         } else {
             throw new UnsupportedOperationException("No available sample gold standard.");
         }
@@ -230,14 +236,6 @@ public class Experiment extends Thread {
 
     public void setDecorator(Query decorator) {
         this.decorator = decorator;
-    }
-
-    public static enum Task {
-        CLINICAL_TRIALS, PUBMED, PUBMED_ONLINE
-    }
-
-    public static enum GoldStandard {
-        INTERNAL, OFFICIAL
     }
 
 

@@ -1,2 +1,2 @@
-de.julielab.jcore.types.pubmed.jcore-document-meta-pubmed-types
-de.julielab.jcore.types.pubmed.jcore-document-structure-pubmed-types
+de.julielab.jcore.types.jcore-document-meta-pubmed-types
+de.julielab.jcore.types.jcore-document-structure-pubmed-types

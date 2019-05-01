@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import at.medunigraz.imi.bst.trec.model.Gene;
+import at.medunigraz.imi.bst.trec.model.GoldStandard;
+import at.medunigraz.imi.bst.trec.model.Task;
 import at.medunigraz.imi.bst.trec.query.*;
 
 public class ExperimentsBuilder {
@@ -157,14 +159,14 @@ public class ExperimentsBuilder {
         return this;
     }
 
-    public ExperimentsBuilder withGoldStandard(Experiment.GoldStandard gold) {
+    public ExperimentsBuilder withGoldStandard(GoldStandard gold) {
         buildingExp.setGoldStandard(gold);
         return this;
     }
 
-    public ExperimentsBuilder withTarget(Experiment.Task task) {
+    public ExperimentsBuilder withTarget(Task task) {
         buildingExp.setTask(task);
-        if (task != Experiment.Task.PUBMED_ONLINE)
+        if (task != Task.PUBMED_ONLINE)
             buildingExp.setDecorator(new ElasticSearchQuery(buildingExp.getIndexName(), buildingExp.getTypes()));
         else
             buildingExp.setDecorator(new PubMedOnlineQuery());

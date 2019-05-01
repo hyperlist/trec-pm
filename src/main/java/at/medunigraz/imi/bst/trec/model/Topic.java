@@ -2,14 +2,18 @@ package at.medunigraz.imi.bst.trec.model;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import de.julielab.ir.model.Query;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class Topic {
+public class Topic extends Query {
 
     // MUST be public to be accessed via Reflection on SubTemplateQueryDecorator
     public String diseasePreferredTerm = "";
@@ -24,12 +28,7 @@ public class Topic {
     // MUST be public to be accessed via Reflection on SubTemplateQueryDecorator
     public List<String> geneHypernyms = new ArrayList<>();
     public List<String> drugInteractions = new ArrayList<>();
-    /**
-     * Which corpus the query belongs to, e.g. TREC-PM 2018 or TREC-PM 2017. This makes
-     * topics unique across different evaluation scenarios.
-     */
-    private String corpus;
-    private int number = 0;
+
     private String disease = "";
     private String gene = "";
     private String demographic = "";
@@ -111,13 +110,7 @@ public class Topic {
         return element.getAttribute(name);
     }
 
-    public String getCorpus() {
-        return corpus;
-    }
 
-    public void setCorpus(String corpus) {
-        this.corpus = corpus;
-    }
 
     public Topic withNumber(int number) {
         this.number = number;
@@ -266,27 +259,13 @@ public class Topic {
                 + ", demographic=" + demographic + ", other=" + other + "]";
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Topic topic = (Topic) o;
-        return number == topic.number &&
-                Objects.equals(corpus, topic.corpus);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(corpus, number);
-    }
 
     /**
-     * Returns 'corpus-number'.
-     * @return A string including the corpus and the topic number for this corpus.
+     * Returns 'challenge-task-year-number'.
+     * @return A string including the challenge, the task, the year and the topic number for this topic, excluding null elements.
      */
     public String getCrossCorpusId() {
-        return corpus + "-" + number;
+        return Stream.of(challenge, task, year, number).filter(Objects::nonNull).map(String::valueOf).collect(Collectors.joining("-"));
     }
 
 }

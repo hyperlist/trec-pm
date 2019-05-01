@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import at.medunigraz.imi.bst.trec.model.Metrics;
@@ -16,6 +17,13 @@ public class XMLStatsWriterTest {
 
 	private final File actualFile = new File("stats/test.xml");
 	private final File expectedFile = new File(getClass().getResource("/stats/expected.xml").getFile());
+
+	@BeforeClass
+	public static void setup() {
+		File stats = new File("stats");
+		if (!stats.exists())
+			stats.mkdir();
+	}
 
 	@Test
 	public void testWrite() throws IOException {

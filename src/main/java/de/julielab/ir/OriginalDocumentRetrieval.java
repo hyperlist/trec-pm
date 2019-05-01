@@ -18,6 +18,7 @@ import org.apache.uima.fit.factory.JCasFactory;
 import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.resource.impl.ResourceManager_impl;
 import org.apache.uima.resource.metadata.TypeSystemDescription;
 import org.apache.uima.resource.metadata.impl.ProcessingResourceMetaData_impl;
 import org.apache.uima.util.CasPool;
@@ -129,7 +130,7 @@ public class OriginalDocumentRetrieval {
             final ProcessingResourceMetaData_impl metaData = new ProcessingResourceMetaData_impl();
             metaData.setTypeSystem(tsDesc);
             try {
-                casPool = new CasPool(10, metaData);
+                casPool = new CasPool(10, metaData, new ResourceManager_impl());
             } catch (ResourceInitializationException e) {
                 log.error("Could not create CAS pool", e);
             }

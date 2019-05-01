@@ -41,8 +41,8 @@ public class RankLibRanker implements Ranker {
                 System.arraycopy(values, 0, ranklibValues, 1, values.length);
             }
             System.arraycopy(indices, 0, ranklibIndices, 1, indices.length);
-            return new SparseDataPoint(ranklibValues, ranklibIndices, d.getId(), d.getRelevance());
-        }).collect(Collectors.groupingBy(dp -> dp.getID(), LinkedHashMap::new, Collectors.toList()));
+            return (DataPoint)new SparseDataPoint(ranklibValues, ranklibIndices, d.getId(), d.getRelevance());
+        }).collect(Collectors.groupingBy(DataPoint::getID, LinkedHashMap::new, Collectors.toList()));
         final LinkedHashMap<String, RankList> rankLists = new LinkedHashMap<>();
         dataPointsByQueryId.forEach((key,value) -> rankLists.put(key, new RankList(value)));
         ranker = new RankerFactory().createRanker(RANKER_TYPE.COOR_ASCENT, new ArrayList(rankLists.values()), null, metricScorerFactory.createScorer(METRIC.NDCG, 20));

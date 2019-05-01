@@ -17,7 +17,7 @@ public class TopicSet {
 
 	private Set<Topic> topics = new HashSet<Topic>();
 
-	public TopicSet(File xmlFile, String corpus) {
+	public TopicSet(File xmlFile, Challenge challenge, Task task, int year) {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 
 		Document doc = null;
@@ -34,7 +34,9 @@ public class TopicSet {
 		for (int i = 0; i < xmlTopics.getLength(); i++) {
 			Element element = (Element) xmlTopics.item(i);
 			Topic t = Topic.fromElement(element);
-			t.setCorpus(corpus);
+			t.setChallenge(challenge);
+			t.setTask(task);
+			t.setYear(year);
 			topics.add(t);
 		}
 	}
