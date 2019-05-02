@@ -60,6 +60,23 @@ public class Query {
         this.number = number;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Query query = (Query) o;
+        return year == query.year &&
+                number == query.number &&
+                challenge == query.challenge &&
+                task == query.task;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(challenge, task, year, number);
+    }
+
     /**
      * <p>
      * Returns 'challenge-task-year-number'.

@@ -6,7 +6,9 @@ import de.julielab.ir.ltr.DocumentList;
 import de.julielab.ir.model.Query;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,16 +17,9 @@ public abstract class AbstractGoldStandard<Q extends Query> implements GoldStand
     protected List<Q> queries;
     protected Challenge challenge;
     protected Task task;
-
-    public DocumentList getDocuments() {
-        return documents;
-    }
-
-    public void setDocuments(DocumentList documents) {
-        this.documents = documents;
-    }
-
     protected int year;
+    private Map<Q, DocumentList> documentsByQuery;
+    private Map<Integer, Q> queriesByNumber;
 
     public AbstractGoldStandard(Challenge challenge, Task task, int year, List<Q> queries, DocumentList documents) {
         this.challenge = challenge;
@@ -36,6 +31,38 @@ public abstract class AbstractGoldStandard<Q extends Query> implements GoldStand
 
     public AbstractGoldStandard(Challenge challenge, Task task, int year, List<Q> queries) {
         this(challenge, task, year, queries, null);
+    }
+
+    @Override
+    public List<Q> getTopicsAsList() {
+        return queries;
+    }
+
+    @Override
+    public Map<Integer, Q> getQueriesByNumber() {
+        if (queriesByNumber == null)
+            queriesByNumber = getQueries().collect(Collectors.toMap(Q::getNumber, Function.identity()));
+        return queriesByNumber;
+    }
+
+    @Override
+    public DocumentList getDocumentsForQuery(Q query) {
+        return getDocumentsPerQuery().get(query);
+    }
+
+    @Override
+    public Map<Q, DocumentList> getDocumentsPerQuery() {
+        if (documentsByQuery == null)
+            documentsByQuery = getQueries().collect(Collectors.toMap(Function.identity(), this::getDocumentsForQuery));
+        return documentsByQuery;
+    }
+
+    public DocumentList getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(DocumentList documents) {
+        this.documents = documents;
     }
 
     public Stream<Q> getQueries() {

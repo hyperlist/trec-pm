@@ -56,17 +56,11 @@ public interface GoldStandard<Q extends Query> {
         return partitioning;
     }
 
-    default List<Q> getTopicsAsList() {
-        return getQueries().collect(Collectors.toList());
-    }
+    List<Q> getTopicsAsList();
 
     DocumentList getDocumentsForQuery(Q query);
 
-    default Map<Q, DocumentList> getDocumentsPerT() {
-        return getQueries().collect(Collectors.toMap(Function.identity(), this::getDocumentsForQuery));
-    }
+    Map<Q, DocumentList> getDocumentsPerQuery();
 
-    default Map<Integer, Q> getQueriesByNumber() {
-        return getQueries().collect(Collectors.toMap(Q::getNumber, Function.identity()));
-    }
+    Map<Integer, Q> getQueriesByNumber();
 }
