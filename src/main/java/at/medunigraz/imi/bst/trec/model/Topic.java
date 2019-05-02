@@ -117,6 +117,21 @@ public class Topic extends Query {
         return this;
     }
 
+    public Topic withChallenge(Challenge challenge) {
+        setChallenge(challenge);
+        return this;
+    }
+
+    public Topic withTask(Task task) {
+        setTask(task);
+        return this;
+    }
+
+    public Topic withYear(int year) {
+        setYear(year);
+        return this;
+    }
+
     public Topic withDisease(String disease) {
         this.disease = disease;
         return this;

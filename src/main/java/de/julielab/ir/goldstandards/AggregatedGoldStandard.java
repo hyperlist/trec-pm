@@ -16,8 +16,8 @@ import java.util.stream.Stream;
 public class AggregatedGoldStandard<Q extends Query> implements GoldStandard<Q> {
 
     Map<Integer, Q> queriesByNumber;
-    private Map<String, AtomicGoldStandard> goldstandards;
-    private List<Object> queryList;
+    private Map<String, AtomicGoldStandard<Q>> goldstandards;
+    private List<Q> queryList;
     private Map<Q, DocumentList> documentsByQuery;
 
     public AggregatedGoldStandard(AtomicGoldStandard... goldStandards) {
@@ -33,8 +33,8 @@ public class AggregatedGoldStandard<Q extends Query> implements GoldStandard<Q> 
      *
      * @return The topics of the underlying gold standards.
      */
-    public Stream<Topic> getTopics() {
-        return goldstandards.values().stream().flatMap(gs -> gs.getQueries());
+    public Stream<Q> getTopics() {
+        return goldstandards.values().stream().flatMap(GoldStandard::getQueries);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class AggregatedGoldStandard<Q extends Query> implements GoldStandard<Q> 
     }
 
     @Override
-    public List getQueriesAsList() {
+    public List<Q> getQueriesAsList() {
         if (queryList == null)
             queryList = goldstandards.values().stream().flatMap(GoldStandard::getQueries).collect(Collectors.toList());
         return queryList;

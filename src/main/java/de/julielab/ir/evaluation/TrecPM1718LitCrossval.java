@@ -1,5 +1,6 @@
 package de.julielab.ir.evaluation;
 
+import at.medunigraz.imi.bst.trec.experiment.ExperimentsBuilder;
 import at.medunigraz.imi.bst.trec.model.Challenge;
 import at.medunigraz.imi.bst.trec.model.Task;
 import at.medunigraz.imi.bst.trec.model.Topic;
@@ -25,6 +26,8 @@ public class TrecPM1718LitCrossval {
         final AggregatedGoldStandard<Topic> aggregatedGoldStandard = new AggregatedGoldStandard<>(trecPmLit2017, trecPmLit2018);
 
         final List<List<Topic>> topicPartitioning = aggregatedGoldStandard.createStratifiedTopicPartitioning(5, Topic::getDisease);
+
+        final ExperimentsBuilder builder = new ExperimentsBuilder();
 
         new RankLibRanker();
         // train and eval

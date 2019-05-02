@@ -29,6 +29,31 @@ public class Experiment extends Thread {
     private String statsDir = "stats/";
     private String resultsDir = "results/";
 
+    public static String getIndexName(Task task) {
+        switch (task) {
+            case CLINICAL_TRIALS:
+                return TrecConfig.ELASTIC_CT_INDEX;
+            case PUBMED:
+                return TrecConfig.ELASTIC_BA_INDEX;
+            default:
+                return "";
+        }
+    }
+
+    public static String[] getTypes(Task task, GoldStandard goldStandard) {
+        String[] ret = new String[0];    // Everything
+
+        if (task == Task.CLINICAL_TRIALS) {
+            return new String[]{TrecConfig.ELASTIC_CT_TYPE};
+        }
+
+        if (task == Task.PUBMED && goldStandard == GoldStandard.INTERNAL) {
+            return new String[]{TrecConfig.ELASTIC_BA_EXTRA_TYPE, TrecConfig.ELASTIC_BA_MEDLINE_TYPE};
+        }
+
+        return ret;
+    }
+
     public void setChallenge(Challenge challenge) {
         this.challenge = challenge;
     }
@@ -62,8 +87,9 @@ public class Experiment extends Thread {
         TrecWriter tw = new TrecWriter(output, runName);
 
         // TODO DRY Issue #53
+        Collection<Topic> topics = topicSet.getTopics();
         List<ResultList> resultListSet = new ArrayList<>();
-        for (Topic topic : topicSet.getTopics()) {
+        for (Topic topic : topics) {
             List<Result> results = decorator.query(topic);
 
 
@@ -144,10 +170,6 @@ public class Experiment extends Thread {
         this.task = task;
     }
 
-    public void setGoldStandard(GoldStandard goldStandard) {
-        this.goldStandard = goldStandard;
-    }
-
     /**
      * @return
      * @todo Add support for 2018 topics
@@ -194,29 +216,12 @@ public class Experiment extends Thread {
         return hasgs;
     }
 
-    public String getIndexName() {
-        switch (task) {
-            case CLINICAL_TRIALS:
-                return TrecConfig.ELASTIC_CT_INDEX;
-            case PUBMED:
-                return TrecConfig.ELASTIC_BA_INDEX;
-            default:
-                return "";
-        }
+    public GoldStandard getGoldStandard() {
+        return goldStandard;
     }
 
-    public String[] getTypes() {
-        String[] ret = new String[0];    // Everything
-
-        if (task == Task.CLINICAL_TRIALS) {
-            return new String[]{TrecConfig.ELASTIC_CT_TYPE};
-        }
-
-        if (task == Task.PUBMED && goldStandard == GoldStandard.INTERNAL) {
-            return new String[]{TrecConfig.ELASTIC_BA_EXTRA_TYPE, TrecConfig.ELASTIC_BA_MEDLINE_TYPE};
-        }
-
-        return ret;
+    public void setGoldStandard(GoldStandard goldStandard) {
+        this.goldStandard = goldStandard;
     }
 
     public String getShortTaskName() {

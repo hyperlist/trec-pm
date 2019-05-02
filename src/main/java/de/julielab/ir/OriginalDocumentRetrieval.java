@@ -3,6 +3,7 @@ package de.julielab.ir;
 import at.medunigraz.imi.bst.config.TrecConfig;
 import de.julielab.ir.ltr.Document;
 import de.julielab.ir.ltr.DocumentList;
+import de.julielab.ir.model.Query;
 import de.julielab.java.utilities.FileUtilities;
 import de.julielab.xml.XmiBuilder;
 import de.julielab.xml.XmiSplitConstants;
@@ -213,7 +214,7 @@ public class OriginalDocumentRetrieval {
      *
      * @param documents The documents to populate with the UIMA XMI CAS data.
      */
-    public void setXmiCasDataToDocuments(DocumentList documents) {
+    public void setXmiCasDataToDocuments(DocumentList<?> documents) {
         final Iterator<byte[][]> xmiData = getDocuments(documents.stream().filter(d -> d.getFullDocumentData() == null).map(d -> new String[]{d.getId()}).collect(Collectors.toList()));
         Map<String, byte[][]> dataByDocId = new HashMap<>();
         while (xmiData.hasNext()) {
@@ -222,7 +223,7 @@ public class OriginalDocumentRetrieval {
             dataByDocId.put(id, data);
         }
 
-        final Iterator<Document> docsIt = documents.iterator();
+        final Iterator<? extends Document<?>> docsIt = documents.iterator();
         while (docsIt.hasNext()) {
             final Document doc = docsIt.next();
             final byte[][] documentData = xmiData.next();

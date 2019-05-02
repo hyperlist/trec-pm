@@ -167,7 +167,7 @@ public class ExperimentsBuilder {
     public ExperimentsBuilder withTarget(Task task) {
         buildingExp.setTask(task);
         if (task != Task.PUBMED_ONLINE)
-            buildingExp.setDecorator(new ElasticSearchQuery(buildingExp.getIndexName(), buildingExp.getTypes()));
+            buildingExp.setDecorator(new ElasticSearchQuery(buildingExp.getGoldStandard()));
         else
             buildingExp.setDecorator(new PubMedOnlineQuery());
         return this;

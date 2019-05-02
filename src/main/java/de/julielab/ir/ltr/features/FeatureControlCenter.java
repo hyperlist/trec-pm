@@ -11,6 +11,7 @@ import de.julielab.ir.ltr.Document;
 import de.julielab.ir.ltr.DocumentList;
 import de.julielab.ir.ltr.features.featuregroups.TfidfFeatureGroup;
 import de.julielab.ir.ltr.features.featuregroups.TopicMatchFeatureGroup;
+import de.julielab.ir.model.Query;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.logging.log4j.LogManager;
@@ -59,7 +60,7 @@ public class FeatureControlCenter {
         return isActive;
     }
 
-    public void createFeatures(DocumentList documents) {
+    public void createFeatures(DocumentList<? extends Query> documents) {
         // We here use the MALLET facilities to create feature vectors.
         List<Pipe> featurePipes = new ArrayList<>();
         featurePipes.add(new Document2TokenPipe());
@@ -73,7 +74,7 @@ public class FeatureControlCenter {
         OriginalDocumentRetrieval.getInstance().setXmiCasDataToDocuments(documents);
 
         final InstanceList instanceList = new InstanceList(serialPipes);
-        for (Document document : documents) {
+        for (Document<? extends Query> document : documents) {
             final Instance instance = new Instance(document, document.getRelevance(), document.getId(), document);
             instanceList.addThruPipe(instance);
             // Within the pipes, the documents need access to their CAS. Since we only have a limited
