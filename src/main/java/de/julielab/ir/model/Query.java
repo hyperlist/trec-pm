@@ -2,7 +2,7 @@ package de.julielab.ir.model;
 
 import at.medunigraz.imi.bst.trec.model.Challenge;
 import at.medunigraz.imi.bst.trec.model.Task;
-import de.julielab.ir.goldstandards.AbstractGoldStandard;
+import de.julielab.ir.goldstandards.AtomicGoldStandard;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -81,7 +81,7 @@ public class Query {
      * <p>
      * Returns 'challenge-task-year-number'.
      * </p>
-     * <p>this method is compatible with {@link AbstractGoldStandard#getDatasetId()} in the sense that that a topic
+     * <p>this method is compatible with {@link AtomicGoldStandard#getDatasetId()} in the sense that that a topic
      * belonging to a specific gold standard always has a cross dataset ID that begins with the ID of its dataset
      * as given by the gold standard dataset ID method.</p>
      *

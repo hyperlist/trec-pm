@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class TrecQrelGoldStandard<Q extends Query> extends AbstractGoldStandard<Q> {
+public class TrecQrelGoldStandard<Q extends Query> extends AtomicGoldStandard<Q> {
 
     private static final Logger log = LogManager.getLogger();
 
@@ -57,34 +57,10 @@ public class TrecQrelGoldStandard<Q extends Query> extends AbstractGoldStandard<
     }
 
     @Override
-    public DocumentList getDocumentsForTopic(int topicId) {
-        return null;
-    }
-
-    @Override
     public Stream<Q> getQueries() {
         return null;
     }
 
-    @Override
-    public String getName() {
-        return null;
-    }
-
-    @Override
-    public Challenge getChallenge() {
-        return null;
-    }
-
-    @Override
-    public Task getTask() {
-        return null;
-    }
-
-    @Override
-    public int getYear() {
-        return 0;
-    }
 
     @Override
     public DocumentList getDocumentsForQuery(Query query) {

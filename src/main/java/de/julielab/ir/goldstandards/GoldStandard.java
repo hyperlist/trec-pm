@@ -1,7 +1,5 @@
 package de.julielab.ir.goldstandards;
 
-import at.medunigraz.imi.bst.trec.model.Challenge;
-import at.medunigraz.imi.bst.trec.model.Task;
 import de.julielab.ir.ltr.DocumentList;
 import de.julielab.ir.model.Query;
 
@@ -13,18 +11,7 @@ import java.util.stream.Stream;
 public interface GoldStandard<Q extends Query> {
     Stream<Q> getQueries();
 
-    String getName();
-
-    /**
-     * To what challenge does this gold standard belong.
-     *
-     * @return The challenge/organization/process that produced or originally used this gold standard with its set of queries.
-     */
-    Challenge getChallenge();
-
-    Task getTask();
-
-    int getYear();
+    String getDatasetId();
 
     default List<List<Q>> createStratifiedTopicPartitioning(int nPartitions, Function<Q, String> topicProperty) {
         // We will first group all the topics by the property to be stratified by, e.g. the disease topic field.
@@ -56,11 +43,15 @@ public interface GoldStandard<Q extends Query> {
         return partitioning;
     }
 
-    List<Q> getTopicsAsList();
-
-    DocumentList getDocumentsForQuery(Q query);
+    List<Q> getQueriesAsList();
 
     Map<Q, DocumentList> getDocumentsPerQuery();
 
     Map<Integer, Q> getQueriesByNumber();
+
+    DocumentList<Q> getDocumentsForQuery(int queryId);
+
+    default DocumentList<Q> getDocumentsForQuery(Q query) {
+        return getDocumentsForQuery(query.getNumber());
+    }
 }

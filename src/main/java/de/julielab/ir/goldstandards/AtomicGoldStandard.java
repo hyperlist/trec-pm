@@ -12,16 +12,33 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class AbstractGoldStandard<Q extends Query> implements GoldStandard<Q> {
+/**
+ * <p>A single gold standard that does not consist of multiple aggregated gold standards (hence, 'atomic') in contract to {@link AggregatedGoldStandard}.</p>
+ *
+ * @param <Q> The query subclass to use.
+ */
+public abstract class AtomicGoldStandard<Q extends Query> implements GoldStandard<Q> {
+    /**
+     * All documents, across all queries.
+     */
     protected DocumentList<Q> documents;
+    /**
+     * All queries.
+     */
     protected List<Q> queries;
     protected Challenge challenge;
     protected Task task;
     protected int year;
+    /**
+     * The documents in {@link #documents} grouped by query.
+     */
     private Map<Q, DocumentList> documentsByQuery;
+    /**
+     * The queries in {@link #queries} grouped by number.
+     */
     private Map<Integer, Q> queriesByNumber;
 
-    public AbstractGoldStandard(Challenge challenge, Task task, int year, List<Q> queries, DocumentList documents) {
+    public AtomicGoldStandard(Challenge challenge, Task task, int year, List<Q> queries, DocumentList documents) {
         this.challenge = challenge;
         this.task = task;
         this.year = year;
@@ -29,12 +46,12 @@ public abstract class AbstractGoldStandard<Q extends Query> implements GoldStand
         this.documents = documents;
     }
 
-    public AbstractGoldStandard(Challenge challenge, Task task, int year, List<Q> queries) {
+    public AtomicGoldStandard(Challenge challenge, Task task, int year, List<Q> queries) {
         this(challenge, task, year, queries, null);
     }
 
     @Override
-    public List<Q> getTopicsAsList() {
+    public List<Q> getQueriesAsList() {
         return queries;
     }
 
@@ -57,6 +74,11 @@ public abstract class AbstractGoldStandard<Q extends Query> implements GoldStand
         return documentsByQuery;
     }
 
+    @Override
+    public DocumentList<Q> getDocumentsForQuery(int queryId) {
+        return getDocumentsForQuery(getQueriesByNumber().get(queryId));
+    }
+
     public DocumentList getDocuments() {
         return documents;
     }
@@ -73,9 +95,7 @@ public abstract class AbstractGoldStandard<Q extends Query> implements GoldStand
         this.queries = queries;
     }
 
-
-    abstract public DocumentList getDocumentsForTopic(int topicId);
-
+    @Override
     public String getDatasetId() {
         return Stream.of(challenge, task, year).filter(Objects::nonNull).map(String::valueOf).collect(Collectors.joining("-"));
     }
