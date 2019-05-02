@@ -2,7 +2,15 @@ package de.julielab.ir.model;
 
 import at.medunigraz.imi.bst.trec.model.Challenge;
 import at.medunigraz.imi.bst.trec.model.Task;
+import de.julielab.ir.goldstandards.AbstractGoldStandard;
 
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+/**
+ * A query from a dataset for which exist relevance-labeled result documents for evaluation.
+ */
 public class Query {
     protected Challenge challenge;
     protected Task task;
@@ -50,5 +58,19 @@ public class Query {
 
     public void setNumber(int number) {
         this.number = number;
+    }
+
+    /**
+     * <p>
+     * Returns 'challenge-task-year-number'.
+     * </p>
+     * <p>this method is compatible with {@link AbstractGoldStandard#getDatasetId()} in the sense that that a topic
+     * belonging to a specific gold standard always has a cross dataset ID that begins with the ID of its dataset
+     * as given by the gold standard dataset ID method.</p>
+     *
+     * @return A string including the challenge, the task, the year and the topic number for this topic, excluding null elements.
+     */
+    public String getCrossDatasetId() {
+        return Stream.of(challenge, task, year, number).filter(Objects::nonNull).map(String::valueOf).collect(Collectors.joining("-"));
     }
 }

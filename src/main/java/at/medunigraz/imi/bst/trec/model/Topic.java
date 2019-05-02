@@ -259,13 +259,4 @@ public class Topic extends Query {
                 + ", demographic=" + demographic + ", other=" + other + "]";
     }
 
-
-    /**
-     * Returns 'challenge-task-year-number'.
-     * @return A string including the challenge, the task, the year and the topic number for this topic, excluding null elements.
-     */
-    public String getCrossCorpusId() {
-        return Stream.of(challenge, task, year, number).filter(Objects::nonNull).map(String::valueOf).collect(Collectors.joining("-"));
-    }
-
 }

@@ -1,4 +1,4 @@
-package de.julielab.ir.ltr.goldstandards;
+package de.julielab.ir.goldstandards;
 
 import at.medunigraz.imi.bst.trec.model.Topic;
 import de.julielab.ir.ltr.DocumentList;
@@ -20,7 +20,7 @@ public class AggregatedGoldStandard implements  GoldStandard{
     }
 
     public DocumentList getDocumentsForTopic(Topic topic) {
-        return goldstandards.get(topic.getCrossCorpusId()).getDocumentsForTopic(topic.getNumber());
+        return goldstandards.get(topic.getCrossDatasetId()).getDocumentsForTopic(topic.getNumber());
     }
 
     /**
@@ -28,7 +28,7 @@ public class AggregatedGoldStandard implements  GoldStandard{
      * @return The topics of the underlying gold standards.
      */
     public Stream<Topic> getTopics() {
-        return goldstandards.values().stream().flatMap(gs -> gs.getTopics());
+        return goldstandards.values().stream().flatMap(gs -> gs.getQueries());
     }
 
     @Override

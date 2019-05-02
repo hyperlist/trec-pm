@@ -1,9 +1,9 @@
 package de.julielab.ir.ltr;
 
-import at.medunigraz.imi.bst.trec.model.Topic;
 import cc.mallet.types.FeatureVector;
 import de.julielab.ir.OriginalDocumentRetrieval;
 import de.julielab.ir.ltr.features.IRScore;
+import de.julielab.ir.model.Query;
 import org.apache.uima.jcas.JCas;
 
 import java.util.HashMap;
@@ -13,9 +13,9 @@ import java.util.Map;
  * A (topic/document) pair. Such objects are the input to ranking algorithms that will rank multiple documents
  * with respect to their topic (query).
  */
-public class Document {
+public class Document<Q extends Query> {
     private String id;
-    private Topic topic;
+    private Q topic;
     private String type;
     /**
      * The gold standard given relevance level, e.g. 0, 1, 2 for not relevant, partially relevant and definitively relevant.
@@ -93,12 +93,12 @@ public class Document {
         this.id = id;
     }
 
-    public Topic getTopic() {
+    public Q getTopic() {
         return topic;
     }
 
 
-    public void setTopic(Topic topic) {
+    public void setTopic(Q topic) {
         this.topic = topic;
     }
 
