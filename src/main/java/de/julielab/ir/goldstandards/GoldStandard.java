@@ -1,14 +1,14 @@
 package de.julielab.ir.goldstandards;
 
 import de.julielab.ir.ltr.DocumentList;
-import de.julielab.ir.model.Query;
+import de.julielab.ir.model.QueryDescription;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public interface GoldStandard<Q extends Query> {
+public interface GoldStandard<Q extends QueryDescription> {
     Stream<Q> getQueries();
 
     String getDatasetId();

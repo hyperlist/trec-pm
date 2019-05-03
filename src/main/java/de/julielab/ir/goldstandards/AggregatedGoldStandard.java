@@ -2,7 +2,7 @@ package de.julielab.ir.goldstandards;
 
 import at.medunigraz.imi.bst.trec.model.Topic;
 import de.julielab.ir.ltr.DocumentList;
-import de.julielab.ir.model.Query;
+import de.julielab.ir.model.QueryDescription;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 /**
  * A convenience class that manages multiple gold standards to make them appear as one.
  */
-public class AggregatedGoldStandard<Q extends Query> implements GoldStandard<Q> {
+public class AggregatedGoldStandard<Q extends QueryDescription> implements GoldStandard<Q> {
 
     Map<Integer, Q> queriesByNumber;
     private Map<String, AtomicGoldStandard<Q>> goldstandards;
@@ -55,7 +55,7 @@ public class AggregatedGoldStandard<Q extends Query> implements GoldStandard<Q> 
     }
 
     @Override
-    public DocumentList<Q> getDocumentsForQuery(Query query) {
+    public DocumentList<Q> getDocumentsForQuery(QueryDescription query) {
         return null;
     }
 

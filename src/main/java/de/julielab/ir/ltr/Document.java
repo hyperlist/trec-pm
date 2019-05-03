@@ -3,7 +3,7 @@ package de.julielab.ir.ltr;
 import cc.mallet.types.FeatureVector;
 import de.julielab.ir.OriginalDocumentRetrieval;
 import de.julielab.ir.ltr.features.IRScore;
-import de.julielab.ir.model.Query;
+import de.julielab.ir.model.QueryDescription;
 import org.apache.uima.jcas.JCas;
 
 import java.util.HashMap;
@@ -13,7 +13,7 @@ import java.util.Map;
  * A (topic/document) pair. Such objects are the input to ranking algorithms that will rank multiple documents
  * with respect to their topic (query).
  */
-public class Document<Q extends Query> {
+public class Document<Q extends QueryDescription> {
     private String id;
     private Q topic;
     private String type;

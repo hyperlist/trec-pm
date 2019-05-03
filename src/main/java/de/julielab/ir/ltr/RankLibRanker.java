@@ -4,22 +4,16 @@ import cc.mallet.types.FeatureVector;
 import ciir.umass.edu.learning.*;
 import ciir.umass.edu.metric.METRIC;
 import ciir.umass.edu.metric.MetricScorerFactory;
-import de.julielab.ir.model.Query;
+import de.julielab.ir.model.QueryDescription;
 import de.julielab.java.utilities.FileUtilities;
-import org.checkerframework.checker.units.qual.A;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-public class RankLibRanker<Q extends Query> implements Ranker<Q> {
+public class RankLibRanker<Q extends QueryDescription> implements Ranker<Q> {
 
     private final MetricScorerFactory metricScorerFactory;
     private ciir.umass.edu.learning.Ranker ranker;

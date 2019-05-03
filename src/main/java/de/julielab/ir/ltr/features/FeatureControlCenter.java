@@ -11,19 +11,11 @@ import de.julielab.ir.ltr.Document;
 import de.julielab.ir.ltr.DocumentList;
 import de.julielab.ir.ltr.features.featuregroups.TfidfFeatureGroup;
 import de.julielab.ir.ltr.features.featuregroups.TopicMatchFeatureGroup;
-import de.julielab.ir.model.Query;
+import de.julielab.ir.model.QueryDescription;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.uima.cas.TypeSystem;
-import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.resource.impl.CasManager_impl;
-import org.apache.uima.resource.impl.ResourceManager_impl;
-import org.apache.uima.resource.metadata.TypeSystemDescription;
-import org.apache.uima.resource.metadata.impl.ProcessingResourceMetaData_impl;
-import org.apache.uima.util.CasPool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +52,7 @@ public class FeatureControlCenter {
         return isActive;
     }
 
-    public void createFeatures(DocumentList<? extends Query> documents) {
+    public void createFeatures(DocumentList<? extends QueryDescription> documents) {
         // We here use the MALLET facilities to create feature vectors.
         List<Pipe> featurePipes = new ArrayList<>();
         featurePipes.add(new Document2TokenPipe());
@@ -74,7 +66,7 @@ public class FeatureControlCenter {
         OriginalDocumentRetrieval.getInstance().setXmiCasDataToDocuments(documents);
 
         final InstanceList instanceList = new InstanceList(serialPipes);
-        for (Document<? extends Query> document : documents) {
+        for (Document<? extends QueryDescription> document : documents) {
             final Instance instance = new Instance(document, document.getRelevance(), document.getId(), document);
             instanceList.addThruPipe(instance);
             // Within the pipes, the documents need access to their CAS. Since we only have a limited

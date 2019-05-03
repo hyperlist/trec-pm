@@ -3,7 +3,7 @@ package de.julielab.ir.goldstandards;
 import at.medunigraz.imi.bst.trec.model.Challenge;
 import at.medunigraz.imi.bst.trec.model.Task;
 import de.julielab.ir.ltr.DocumentList;
-import de.julielab.ir.model.Query;
+import de.julielab.ir.model.QueryDescription;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  *
  * @param <Q> The query subclass to use.
  */
-public abstract class AtomicGoldStandard<Q extends Query> implements GoldStandard<Q> {
+public abstract class AtomicGoldStandard<Q extends QueryDescription> implements GoldStandard<Q> {
     /**
      * All documents, across all queries.
      */

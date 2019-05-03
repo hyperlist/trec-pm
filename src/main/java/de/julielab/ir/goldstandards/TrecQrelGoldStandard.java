@@ -4,7 +4,7 @@ import at.medunigraz.imi.bst.trec.model.Challenge;
 import at.medunigraz.imi.bst.trec.model.Task;
 import de.julielab.ir.ltr.Document;
 import de.julielab.ir.ltr.DocumentList;
-import de.julielab.ir.model.Query;
+import de.julielab.ir.model.QueryDescription;
 import de.julielab.java.utilities.FileUtilities;
 import de.julielab.java.utilities.IOStreamUtilities;
 import org.apache.logging.log4j.LogManager;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class TrecQrelGoldStandard<Q extends Query> extends AtomicGoldStandard<Q> {
+public class TrecQrelGoldStandard<Q extends QueryDescription> extends AtomicGoldStandard<Q> {
 
     private static final Logger log = LogManager.getLogger();
     private File qrels;
@@ -28,7 +28,7 @@ public class TrecQrelGoldStandard<Q extends Query> extends AtomicGoldStandard<Q>
     }
 
     public TrecQrelGoldStandard(Challenge challenge, Task task, int year, Collection<Q> topics, File qrels) {
-        super(challenge, task, year, topics.stream().sorted(Comparator.comparingInt(Query::getNumber)).collect(Collectors.toList()));
+        super(challenge, task, year, topics.stream().sorted(Comparator.comparingInt(QueryDescription::getNumber)).collect(Collectors.toList()));
         this.qrels = qrels;
         setDocuments(readQrels(qrels));
     }
