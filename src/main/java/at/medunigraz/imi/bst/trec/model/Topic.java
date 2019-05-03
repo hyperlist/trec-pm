@@ -2,18 +2,15 @@ package at.medunigraz.imi.bst.trec.model;
 
 import java.io.File;
 import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import de.julielab.ir.model.Query;
+import de.julielab.ir.model.QueryDescription;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class Topic extends Query {
+public class Topic extends QueryDescription {
 
     // MUST be public to be accessed via Reflection on SubTemplateQueryDecorator
     public String diseasePreferredTerm = "";
