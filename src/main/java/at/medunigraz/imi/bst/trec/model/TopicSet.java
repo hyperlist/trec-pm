@@ -1,8 +1,7 @@
 package at.medunigraz.imi.bst.trec.model;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -15,7 +14,7 @@ public class TopicSet {
 
 	private static final String TAGNAME = "topic";
 
-	private Set<Topic> topics = new HashSet<Topic>();
+	private Set<Topic> topics = new LinkedHashSet<>();
 
 	public TopicSet(File xmlFile) {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
