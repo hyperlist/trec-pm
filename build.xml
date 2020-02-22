@@ -37,6 +37,9 @@
              dest="${project.build.directory}/lib/sample_eval.pl"
              verbose="false" usetimestamp="false"/>
     </target>
+    
+    
+    
     <target name="get.gene.info" unless="gene.info.available">
         <gunzip src="${basedir}/resources/Homo_sapiens.gene_info.gz"
                 dest="${basedir}/src/main/resources/genes/Homo_sapiens.gene_info"/>
