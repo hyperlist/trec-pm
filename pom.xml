@@ -170,6 +170,8 @@
             <artifactId>julie-xml-tools</artifactId>
             <version>0.6.1-SNAPSHOT</version>
         </dependency>
+        
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
@@ -332,6 +334,11 @@
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.13</version>
+        </dependency>
+        <dependency>
+            <groupId>de.julielab</groupId>
+            <artifactId>jcore-parent</artifactId>
+            <version>2.5.0</version>
         </dependency>
     </dependencies>
 
