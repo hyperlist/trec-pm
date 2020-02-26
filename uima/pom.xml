@@ -9,6 +9,13 @@
     <version>1.1.0</version>
     <packaging>pom</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>de.julielab</groupId>
+            <artifactId>jcore-parent</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+    </dependencies>
     <parent>
         <groupId>de.julielab</groupId>
         <artifactId>jcore-parent</artifactId>

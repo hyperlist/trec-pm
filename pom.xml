@@ -335,11 +335,6 @@
             <artifactId>commons-codec</artifactId>
             <version>1.13</version>
         </dependency>
-        <dependency>
-            <groupId>de.julielab</groupId>
-            <artifactId>jcore-parent</artifactId>
-            <version>2.5.0</version>
-        </dependency>
     </dependencies>
 
 </project>
